@@ -13,32 +13,28 @@ body:
     attributes:
       label: 기능 이름
       description: 기능을 한 줄로 요약해주세요.
-      placeholder: 예: 사용자 회원가입 API
+      placeholder: "예: 사용자 회원가입 API"
   - type: textarea
     id: feature-description
     attributes:
       label: 기능 설명
       description: 어떤 기능인지, 왜 필요한지 설명해주세요.
-      placeholder: 예: 사용자가 이메일과 비밀번호로 회원가입할 수 있도록 한다.
+      placeholder: "예: 사용자가 이메일과 비밀번호로 회원가입할 수 있도록 한다."
   - type: textarea
     id: requirements
     attributes:
       label: 구현에 필요한 요소
       description: 필요한 클래스, 메서드, API 엔드포인트 등을 정리해주세요.
-      placeholder: |
-        - UserController에 POST /signup 추가
-        - UserService에 createUser 메서드 구현
-        - User 엔티티에 validation 로직 추가
-        - 테스트 코드 작성 (단위/통합)
+      placeholder: "- UserController에 POST /signup 추가\n- UserService에 createUser 메서드 구현\n- User 엔티티에 validation 로직 추가\n- 테스트 코드 작성 (단위/통합)"
   - type: textarea
     id: considerations
     attributes:
       label: 고려 사항
       description: 보안, 예외 처리, 성능 등 특별히 고려해야 할 점이 있다면 적어주세요.
-      placeholder: 예: 비밀번호는 해시 처리해야 하며, 중복 이메일은 예외 처리 필요
+      placeholder: "예: 비밀번호는 해시 처리해야 하며, 중복 이메일은 예외 처리 필요"
   - type: textarea
     id: done
     attributes:
       label: 완료 기준
       description: 기능이 완료되었다고 판단할 수 있는 기준을 적어주세요.
-      placeholder: 예: 회원가입 API가 정상 동작하고 테스트 코드가 통과함
+      placeholder: "예: 회원가입 API가 정상 동작하고 테스트 코드가 통과함"
