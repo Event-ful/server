@@ -32,9 +32,3 @@ body:
       label: 고려 사항
       description: 보안, 예외 처리, 성능 등 특별히 고려해야 할 점이 있다면 적어주세요.
       placeholder: "예: 비밀번호는 해시 처리해야 하며, 중복 이메일은 예외 처리 필요"
-  - type: textarea
-    id: done
-    attributes:
-      label: 완료 기준
-      description: 기능이 완료되었다고 판단할 수 있는 기준을 적어주세요.
-      placeholder: "예: 회원가입 API가 정상 동작하고 테스트 코드가 통과함"
