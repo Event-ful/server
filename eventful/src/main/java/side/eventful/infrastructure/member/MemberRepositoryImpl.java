@@ -5,6 +5,8 @@ import org.springframework.stereotype.Repository;
 import side.eventful.domain.member.Member;
 import side.eventful.domain.member.MemberRepository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class MemberRepositoryImpl implements MemberRepository {
@@ -24,5 +26,10 @@ public class MemberRepositoryImpl implements MemberRepository {
     @Override
     public boolean existsByNickname(String nickname) {
         return memberJpaRepository.existsByNickname(nickname);
+    }
+
+    @Override
+    public Optional<Member> findByEmail(String email) {
+        return memberJpaRepository.findByEmail(email);
     }
 }
