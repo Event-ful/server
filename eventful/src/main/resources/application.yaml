@@ -19,6 +19,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  session:
+    jdbc:
+      initialize-schema: always
+      table-name: SPRING_SESSION
+    timeout:
+      dev: 86400  # 개발 환경: 24시간
+      prod: 7200 # 운영 환경: 2시간
 
 springdoc:
   default-consumes-media-type: application/json
