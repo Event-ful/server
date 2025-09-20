@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import side.eventful.domain.member.auth.AuthCommand;
 import side.eventful.domain.member.auth.SessionAuthService;
+import side.eventful.global.response.ApiResponse;
 
 @RequiredArgsConstructor
 @RestController
@@ -16,14 +17,14 @@ public class AuthController {
     private final SessionAuthService sessionAuthService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(AuthRequest.Login request) {
+    public ResponseEntity<ApiResponse> login(AuthRequest.Login request) {
         sessionAuthService.login(AuthCommand.Login.create(request.getEmail(), request.getPassword()));
-        return ResponseEntity.ok("OK");
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
+    public ResponseEntity<ApiResponse> logout() {
         sessionAuthService.logout();
-        return ResponseEntity.ok("OK");
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 }
