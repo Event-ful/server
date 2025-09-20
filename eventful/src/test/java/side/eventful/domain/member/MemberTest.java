@@ -2,6 +2,7 @@ package side.eventful.domain.member;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import side.eventful.infrastructure.security.config.TestPasswordEncoder;
@@ -9,6 +10,7 @@ import side.eventful.infrastructure.security.config.TestPasswordEncoder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
+@SpringBootTest
 class MemberTest {
 
     @Autowired

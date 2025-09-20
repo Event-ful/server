@@ -34,8 +34,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/members/signup/*",
                     "/api/members/signup",
-                    "/api/auth/login",
-                    "/api/auth/logout",
+                    "/api/auth/*",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/swagger-ui.html"
@@ -55,11 +54,13 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 와일드카드(*) 대신 구체적인 origin 설정
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",  // 프론트엔드 개발 서버
-            "http://localhost:8080"   // 백엔드 개발 서버
-            // 필요한 경우 프로덕션 도메인 추가
-        ));
+//        configuration.setAllowedOrigins(Arrays.asList(
+//            "http://localhost:3000",  // 프론트엔드 개발 서버
+//            "http://localhost:8080"   // 백엔드 개발 서버
+//            // 필요한 경우 프로덕션 도메인 추가
+//        ));
+
+        configuration.setAllowedOrigins(Arrays.asList("*"));
 
         // 나머지 설정은 그대로 유지
         configuration.setAllowedMethods(Arrays.asList(

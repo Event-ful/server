@@ -38,13 +38,7 @@ dependencies {
     implementation("com.sendgrid:sendgrid-java:4.10.3")
 
     //스웨거
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
-    implementation("org.springdoc:springdoc-openapi-starter-common:2.3.0")
-
-    // JWT
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // JSON 직렬화/역직렬화
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
 
     // Session
     implementation("org.springframework.session:spring-session-core")

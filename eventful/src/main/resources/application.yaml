@@ -11,7 +11,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update  # create, create-drop, update, validate, none
+      ddl-auto: create-drop  # create, create-drop, update, validate, none
     show-sql: true  # SQL 쿼리 로그 출력
     properties:
       hibernate:
@@ -23,13 +23,11 @@ spring:
     jdbc:
       initialize-schema: always
       table-name: SPRING_SESSION
-    timeout:
-      dev: 86400  # 개발 환경: 24시간
-      prod: 7200 # 운영 환경: 2시간
-
+    timeout: 24h  # 세션 타임아웃 설정 (예: 30m, 1h)
 springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+  packages-to-scan: side.eventful
   api-docs:
     enabled: true
     path: /v3/api-docs
@@ -40,3 +38,7 @@ springdoc:
     urls:
       - url: /v3/api-docs
         name: API docs
+logging:
+  level:
+    org.springframework : DEBUG
+    side.eventful : DEBUG
