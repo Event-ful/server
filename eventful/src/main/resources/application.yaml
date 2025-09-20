@@ -38,7 +38,3 @@ springdoc:
     urls:
       - url: /v3/api-docs
         name: API docs
-logging:
-  level:
-    org.springframework : DEBUG
-    side.eventful : DEBUG
