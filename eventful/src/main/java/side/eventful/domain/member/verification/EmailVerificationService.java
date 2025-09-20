@@ -1,7 +1,10 @@
 package side.eventful.domain.member.verification;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import side.eventful.global.error.exception.BusinessException;
+import side.eventful.global.error.exception.ErrorDivision;
 
 import java.time.LocalDateTime;
 
@@ -25,12 +28,7 @@ public class EmailVerificationService {
         }
 
         emailVerificationRepository.findLatestByEmail(command.getEmail())
-            .ifPresent(verification -> {
-                if (verification.isVerified()) {
-                    throw new IllegalArgumentException("이미 인증이 완료된 이메일입니다. 회원가입을 진행해주세요.");
-                }
-                emailVerificationRepository.delete(verification);
-            });
+            .ifPresent(emailVerificationRepository::delete);
 
         String verificationCode = verificationCodeGenerator.generate();
         LocalDateTime expiryDateTime = command.getExpiryDateTime();
@@ -51,7 +49,7 @@ public class EmailVerificationService {
     public void verifyEmail(EmailVerificationCommand.VerifyEmail command) {
         EmailVerification emailAndVerificationCode = emailVerificationRepository.findByEmailAndVerificationCode(command.getEmail(), command.getVerificationCode())
             .orElseThrow(
-                () -> new IllegalArgumentException("인증코드가 유효하지 않습니다.")
+                () -> new BusinessException(HttpStatus.BAD_REQUEST.value(), "인증코드가 유효하지 않습니다.", ErrorDivision.EMAIL_CONFIRM_INVALID_CODE)
             );
 
         emailAndVerificationCode.verify(command.getVerificationDateTime());
