@@ -6,7 +6,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 import side.eventful.domain.common.BaseEntity;
+import side.eventful.global.error.exception.BusinessException;
+import side.eventful.global.error.exception.ErrorDivision;
 
 import java.time.LocalDateTime;
 
@@ -44,11 +47,11 @@ public class EmailVerification extends BaseEntity {
      */
     public void verify(LocalDateTime verificationDateTime) {
         if (isVerified) {
-            throw new IllegalStateException("이미 인증된 이메일입니다.");
+            throw new BusinessException(HttpStatus.BAD_REQUEST.value(), "이미 인증된 이메일입니다.", ErrorDivision.EMAIL_CONFIRM_ALREADY_VERIFIED);
         }
 
         if (verificationDateTime.isAfter(expiryDateTime)){
-            throw new IllegalStateException("인증 시간이 만료되었습니다.");
+            throw new BusinessException(HttpStatus.BAD_REQUEST.value(), "인증 시간이 만료되었습니다.", ErrorDivision.EMAIL_CONFIRM_EXPIRED);
         }
 
         isVerified = true;
