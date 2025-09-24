@@ -24,6 +24,9 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build -x test
 
+      - name: Check build output
+        run: ls -lh build/libs
+        
       - name: Copy JAR to VM
         uses: appleboy/scp-action@v0.1.7
         with:
