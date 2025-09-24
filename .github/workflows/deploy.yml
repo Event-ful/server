@@ -19,7 +19,10 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: |
+          cd server
+          chmod +x gradlew
+          ./gradlew clean build -x test
 
       - name: Copy JAR to VM
         uses: appleboy/scp-action@v0.1.7
