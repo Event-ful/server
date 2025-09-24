@@ -23,9 +23,6 @@ jobs:
           cd eventful
           chmod +x gradlew
           ./gradlew clean build -x test
-
-      - name: Check build output
-        run: ls -lh build/libs
         
       - name: Copy JAR to VM
         uses: appleboy/scp-action@v0.1.7
@@ -33,7 +30,7 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
-          source: "build/libs/*.jar"
+          source: "eventful/build/libs/*.jar"
           target: "/home/ubuntu/app/"
 
       - name: Restart Spring Boot Service
