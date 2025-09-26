@@ -23,14 +23,14 @@ jobs:
           cd eventful
           chmod +x gradlew
           ./gradlew clean build -x test
-        
+
       - name: Copy JAR to VM
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
-          source: "eventful/build/libs/*.jar"
+          source: "eventful/build/libs/eventful-*.jar"
           target: "/home/ubuntu/app/"
 
       - name: Restart Spring Boot Service
@@ -41,6 +41,47 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
-            export $(cat .env | xargs) # .env 값 주입
-            cd /home/ubuntu/app/eventful/build/libs
-            nohup java -jar eventful-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+
+            # .env 환경 변수 적용
+            if [ -f .env ]; then
+              export $(cat .env | xargs)
+            fi
+
+            # 최신 eventful-*.jar 파일 감지
+            JAR_FILE=$(ls -t eventful/build/libs/eventful-*.jar | head -n 1)
+            if [ -z "$JAR_FILE" ]; then
+              echo "No eventful JAR file found in build/libs!"
+              exit 1
+            fi
+            echo "Deploying JAR: $JAR_FILE"
+
+            # 기존 Spring Boot 프로세스 안전하게 종료
+            PIDS=$(ps -ef | grep "$JAR_FILE" | grep -v grep | awk '{print $2}')
+
+            if [ -n "$PIDS" ]; then
+              echo "Stopping existing Spring Boot process(es): $PIDS"
+
+              # 정상 종료 시도
+              kill $PIDS
+
+              # 최대 10초 대기하며 종료 확인
+              for i in {1..10}; do
+                sleep 1
+                STILL_RUNNING=$(ps -ef | grep "$JAR_FILE" | grep -v grep | awk '{print $2}')
+                if [ -z "$STILL_RUNNING" ]; then
+                  echo "Process stopped successfully"
+                  break
+                fi
+              done
+
+              # 강제 종료
+              STILL_RUNNING=$(ps -ef | grep "$JAR_FILE" | grep -v grep | awk '{print $2}')
+              if [ -n "$STILL_RUNNING" ]; then
+                echo "Force killing remaining process(es): $STILL_RUNNING"
+                kill -9 $STILL_RUNNING
+              fi
+            fi
+
+            # 새 JAR 실행 (백그라운드)
+            nohup java -jar "$JAR_FILE" > app.log 2>&1 &
+            echo "Spring Boot application started successfully: $JAR_FILE"
