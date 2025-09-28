@@ -14,7 +14,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop  # create, create-drop, update, validate, none
+      ddl-auto: update  # create, create-drop, update, validate, none
     show-sql: true  # SQL 쿼리 로그 출력
     properties:
       hibernate:
