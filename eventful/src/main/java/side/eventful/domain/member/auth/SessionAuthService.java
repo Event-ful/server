@@ -33,4 +33,17 @@ public class SessionAuthService implements AuthService{
     public void logout() {
         httpSession.invalidate();
     }
+
+    @Override
+    public Member getAuthenticatedMember() {
+        Object userId = httpSession.getAttribute(USER_ID_SESSION_KEY);
+
+        if (userId == null) {
+            throw new IllegalArgumentException("로그인 된 사용자가 없습니다.");
+        }
+
+        return memberRepository.findById((Long)userId)
+            .orElseThrow(() -> new IllegalArgumentException("인증된 사용자가 없습니다."));
+
+    }
 }
