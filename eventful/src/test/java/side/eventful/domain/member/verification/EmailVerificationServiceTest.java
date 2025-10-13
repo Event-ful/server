@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import side.eventful.global.error.exception.BusinessException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -73,8 +74,8 @@ class EmailVerificationServiceTest {
     }
 
     @Test
-    @DisplayName("이메일 인증 생성 - 미 인증된 이메일의 경우 삭제하고 다시 생성한다.")
-    void create_WithUnVerifiedEmail_DeleteAndReturnNewVerificationCode() {
+    @DisplayName("이메일 인증 생성 - 기존 이메일이 있는 경우 삭제하고 다시 생성한다")
+    void create_WithExistingEmail_DeleteAndReturnNewVerificationCode() {
         // given
         String email = "test@abcd.com";
         LocalDateTime expiryDateTime = LocalDateTime.now();
@@ -100,29 +101,6 @@ class EmailVerificationServiceTest {
         verify(emailVerificationRepository).delete(existingVerification);
         verify(verificationCodeGenerator).generate();
         verify(emailVerificationRepository).save(any(EmailVerification.class));
-    }
-
-    @Test
-    @DisplayName("이메일 인증 생성 - 이미 인증된 이메일의 경우 예외가 발생한다.")
-    void create_WithVerifiedEmail_ThrowsException() {
-        // given
-        String email = "test@abcd.com";
-        LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(30);
-        EmailVerificationCommand.Create command = EmailVerificationCommand.Create.create(email, expiryDateTime);
-
-        EmailVerification verifiedEmail = EmailVerification.create(email, "123456", LocalDateTime.now().plusMinutes(30));
-        verifiedEmail.verify(LocalDateTime.now());
-
-        given(emailVerificationRepository.findLatestByEmail(email))
-            .willReturn(Optional.of(verifiedEmail));
-
-        // when & then
-        assertThatThrownBy(() -> emailVerificationService.create(command))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("이미 인증이 완료된 이메일입니다. 회원가입을 진행해주세요.");
-
-        verify(emailVerificationRepository, never()).delete(any());
-        verify(emailVerificationRepository, never()).save(any());
     }
 
     @Test

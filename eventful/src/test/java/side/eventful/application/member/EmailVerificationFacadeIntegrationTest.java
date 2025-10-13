@@ -11,6 +11,7 @@ import side.eventful.domain.member.MemberService;
 import side.eventful.domain.member.verification.EmailVerification;
 import side.eventful.domain.member.verification.EmailVerificationRepository;
 import side.eventful.domain.member.verification.EmailVerificationService;
+import side.eventful.global.error.exception.BusinessException;
 import side.eventful.infrastructure.email.TestEmailSender;
 import side.eventful.infrastructure.security.config.TestPasswordEncoder;
 
@@ -70,20 +71,28 @@ class EmailVerificationFacadeIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    @DisplayName("이메일 인증 요청 - 이미 인증이 완료된 이메일인 경우 에러가 발생한다")
-    void request_AlreadyVerifiedEmail_ThrowsException() {
+    @DisplayName("이메일 인증 요청 - 이미 인증이 완료된 이메일도 삭제하고 새로 생성한다")
+    void request_AlreadyVerifiedEmail_DeleteAndCreateNew() throws IOException {
         // given
         String email = "test@abcd.com";
         LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(30);
-        EmailVerification emailVerification = EmailVerification.create(email, "123456", LocalDateTime.now().plusMinutes(30));
+        EmailVerification emailVerification = EmailVerification.create(email, "old-code", LocalDateTime.now().plusMinutes(30));
         emailVerification.verify(LocalDateTime.now());
         emailVerificationRepository.save(emailVerification);
         EmailVerificationCriteria.Request criteria = EmailVerificationCriteria.Request.create(email, expiryDateTime);
 
-        // when&then
-        assertThatThrownBy(() -> emailVerificationFacade.request(criteria))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("이미 인증이 완료된 이메일입니다. 회원가입을 진행해주세요.");
+        // when
+        EmailVerificationResult.Request result = emailVerificationFacade.request(criteria);
+
+        // then
+        assertThat(result.getVerificationCode()).isEqualTo("123456");
+
+        // 기존 인증된 이메일이 삭제되고 새로운 인증 코드가 생성되었는지 확인
+        EmailVerification newVerification = emailVerificationRepository.findLatestByEmail(email)
+            .orElseThrow(() -> new AssertionError("새로운 이메일 인증 정보를 찾을 수 없습니다."));
+
+        assertThat(newVerification.getVerificationCode()).isEqualTo("123456");
+        assertThat(newVerification.isVerified()).isFalse(); // 새로 생성된 것은 미인증 상태
     }
 
     @Test
