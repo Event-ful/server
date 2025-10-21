@@ -48,15 +48,9 @@ jobs:
             fi
 
             # 최신 eventful-*.jar 파일 감지
-            JAR_FILE=$(ls -t eventful/build/libs/eventful-*.jar | head -n 1)
-            if [ -z "$JAR_FILE" ]; then
-              echo "No eventful JAR file found in build/libs!"
-              exit 1
-            fi
-            echo "Deploying JAR: $JAR_FILE"
+            cd /home/ubuntu/app/eventful/build/libs
 
-            # 기존 Spring Boot 프로세스 안전하게 종료
-            PIDS=$(ps -ef | grep "$JAR_FILE" | grep -v grep | awk '{print $2}')
+            PIDS=$(ps -ef | grep eventful-0.0.1-SNAPSHOT-plain.jar | grep -v grep | awk '{print $2}')
 
             if [ -n "$PIDS" ]; then
               echo "Stopping existing Spring Boot process(es): $PIDS"
@@ -67,7 +61,7 @@ jobs:
               # 최대 10초 대기하며 종료 확인
               for i in {1..10}; do
                 sleep 1
-                STILL_RUNNING=$(ps -ef | grep "$JAR_FILE" | grep -v grep | awk '{print $2}')
+                STILL_RUNNING=$(ps -ef | grep eventful-0.0.1-SNAPSHOT-plain.jar | grep -v grep | awk '{print $2}')
                 if [ -z "$STILL_RUNNING" ]; then
                   echo "Process stopped successfully"
                   break
@@ -75,7 +69,7 @@ jobs:
               done
 
               # 강제 종료
-              STILL_RUNNING=$(ps -ef | grep "$JAR_FILE" | grep -v grep | awk '{print $2}')
+              STILL_RUNNING=$(ps -ef | grep eventful-0.0.1-SNAPSHOT-plain.jar | grep -v grep | awk '{print $2}')
               if [ -n "$STILL_RUNNING" ]; then
                 echo "Force killing remaining process(es): $STILL_RUNNING"
                 kill -9 $STILL_RUNNING
@@ -83,5 +77,5 @@ jobs:
             fi
 
             # 새 JAR 실행 (백그라운드)
-            nohup java -jar "$JAR_FILE" > app.log 2>&1 &
-            echo "Spring Boot application started successfully: $JAR_FILE"
+            nohup java -jar eventful-0.0.1-SNAPSHOT-plain.jar > app.log 2>&1 &
+          
