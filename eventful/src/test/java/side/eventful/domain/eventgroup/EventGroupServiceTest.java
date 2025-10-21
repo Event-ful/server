@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import side.eventful.domain.member.Member;
+import side.eventful.infrastructure.security.config.TestPasswordEncoder;
 
 import java.util.Optional;
 
@@ -23,8 +24,7 @@ class EventGroupServiceTest {
     @Mock
     private EventGroupRepository eventGroupRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder = new TestPasswordEncoder();
 
     @InjectMocks
     private EventGroupService eventGroupService;
@@ -181,6 +181,168 @@ class EventGroupServiceTest {
 
         // when, then
         assertThrows(IllegalArgumentException.class, () -> eventGroupService.joinGroup(command));
+    }
+
+    @Test
+    @DisplayName("유효한 joinCode로 그룹 정보를 조회할 수 있다")
+    void verifyJoinCode_WithValidCode_ShouldReturnEventGroup() {
+        // given
+        String joinCode = "ABC12345";
+        Member leader = Member.create("test@example.com", "password", "TestUser", passwordEncoder);
+        EventGroup eventGroup = EventGroup.create("TestGroup", "Test Description", null, leader);
+
+        EventGroupCommand.VerifyCode command = EventGroupCommand.VerifyCode.create(joinCode);
+
+        given(eventGroupRepository.findByJoinCode(joinCode)).willReturn(Optional.of(eventGroup));
+
+        // when
+        EventGroup result = eventGroupService.verifyJoinCode(command);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("TestGroup");
+        assertThat(result.getDescription()).isEqualTo("Test Description");
+        assertThat(result.getJoinCode()).isNotNull();
+        assertThat(result.getJoinCode()).hasSize(8);
+    }
+
+    @Test
+    @DisplayName("유효하지 않은 joinCode로 조회 시 예외가 발생한다")
+    void verifyJoinCode_WithInvalidCode_ShouldThrowException() {
+        // given
+        String invalidJoinCode = "INVALID1";
+
+        EventGroupCommand.VerifyCode command = EventGroupCommand.VerifyCode.create(invalidJoinCode);
+
+        given(eventGroupRepository.findByJoinCode(invalidJoinCode)).willReturn(Optional.empty());
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> eventGroupService.verifyJoinCode(command)
+        );
+
+        assertThat(exception.getMessage()).isEqualTo("유효하지 않은 참가 코드입니다");
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 그룹 ID로 joinCode 검증 시 예외가 발생한다")
+    void verifyJoinCode_WithNonExistentGroup_ShouldThrowException() {
+        // given
+        String nonExistentJoinCode = "NOGROUP1";
+
+        EventGroupCommand.VerifyCode command = EventGroupCommand.VerifyCode.create(nonExistentJoinCode);
+
+        given(eventGroupRepository.findByJoinCode(nonExistentJoinCode)).willReturn(Optional.empty());
+
+        // when & then
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> eventGroupService.verifyJoinCode(command)
+        );
+
+        assertThat(exception.getMessage()).isEqualTo("유효하지 않은 참가 코드입니다");
+    }
+
+    @Test
+    @DisplayName("그룹 생성 - joinCode 중복 체크 후 유니크한 코드로 생성")
+    void create_withDuplicateJoinCode_shouldRetryAndCreateWithUniqueCode() {
+        // given
+        Member leader = Member.create("test@test.com", "password", "nickname", passwordEncoder);
+        EventGroupCommand.Create command = EventGroupCommand.Create.create("제주도 여행", "2박 3일 여행", "https://example.com/image.jpg", leader);
+
+        // 첫 번째 joinCode는 중복, 두 번째는 유니크하다고 가정
+        given(eventGroupRepository.existsByJoinCode(any(String.class)))
+                .willReturn(true)   // 첫 번째 시도 - 중복
+                .willReturn(false); // 두 번째 시도 - 유니크
+
+        EventGroup expectedEventGroup = EventGroup.createWithJoinCode(
+            command.getName(), command.getDescription(), command.getImageUrl(), command.getLeader(), "UNIQUE12"
+        );
+        given(eventGroupRepository.save(any(EventGroup.class)))
+                .willReturn(expectedEventGroup);
+
+        // when
+        EventGroup result = eventGroupService.create(command);
+
+        // then
+        assertThat(result).isEqualTo(expectedEventGroup);
+        verify(eventGroupRepository, org.mockito.Mockito.times(2)).existsByJoinCode(any(String.class));
+        verify(eventGroupRepository).save(any(EventGroup.class));
+    }
+
+    @Test
+    @DisplayName("그룹 생성 - joinCode 생성 최대 재시도 횟수 초과 시 예외 발생")
+    void create_withMaxAttemptsExceeded_shouldThrowException() {
+        // given
+        Member leader = Member.create("test@test.com", "password", "nickname", passwordEncoder);
+        EventGroupCommand.Create command = EventGroupCommand.Create.create("제주도 여행", "2박 3일 여행", "https://example.com/image.jpg", leader);
+
+        // 모든 시도에서 중복이라고 가정 (11번 호출: 10번 재시도 + 1번 초기 시도)
+        given(eventGroupRepository.existsByJoinCode(any(String.class)))
+                .willReturn(true);
+
+        // when & then
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> eventGroupService.create(command)
+        );
+
+        assertThat(exception.getMessage()).isEqualTo("joinCode 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        verify(eventGroupRepository, org.mockito.Mockito.times(10)).existsByJoinCode(any(String.class));
+        verify(eventGroupRepository, org.mockito.Mockito.never()).save(any(EventGroup.class));
+    }
+
+    @Test
+    @DisplayName("그룹 생성 - 첫 번째 시도에서 유니크한 joinCode 생성 성공")
+    void create_withFirstAttemptSuccess_shouldCreateWithoutRetry() {
+        // given
+        Member leader = Member.create("test@test.com", "password", "nickname", passwordEncoder);
+        EventGroupCommand.Create command = EventGroupCommand.Create.create("제주도 여행", "2박 3일 여행", "https://example.com/image.jpg", leader);
+
+        // 첫 번째 시도에서 바로 유니크한 코드 생성
+        given(eventGroupRepository.existsByJoinCode(any(String.class)))
+                .willReturn(false);
+
+        EventGroup expectedEventGroup = EventGroup.createWithJoinCode(
+            command.getName(), command.getDescription(), command.getImageUrl(), command.getLeader(), "UNIQUE01"
+        );
+        given(eventGroupRepository.save(any(EventGroup.class)))
+                .willReturn(expectedEventGroup);
+
+        // when
+        EventGroup result = eventGroupService.create(command);
+
+        // then
+        assertThat(result).isEqualTo(expectedEventGroup);
+        verify(eventGroupRepository, org.mockito.Mockito.times(1)).existsByJoinCode(any(String.class));
+        verify(eventGroupRepository).save(any(EventGroup.class));
+    }
+
+    @Test
+    @DisplayName("그룹 생성 - existsByJoinCode 메서드 호출 확인")
+    void create_shouldCallExistsByJoinCodeBeforeSaving() {
+        // given
+        Member leader = Member.create("test@test.com", "password", "nickname", passwordEncoder);
+        EventGroupCommand.Create command = EventGroupCommand.Create.create("제주도 여행", "2박 3일 여행", "https://example.com/image.jpg", leader);
+
+        given(eventGroupRepository.existsByJoinCode(any(String.class)))
+                .willReturn(false);
+
+        EventGroup expectedEventGroup = EventGroup.createWithJoinCode(
+            command.getName(), command.getDescription(), command.getImageUrl(), command.getLeader(), "TEST1234"
+        );
+        given(eventGroupRepository.save(any(EventGroup.class)))
+                .willReturn(expectedEventGroup);
+
+        // when
+        eventGroupService.create(command);
+
+        // then
+        // existsByJoinCode가 save 이전에 호출되었는지 확인
+        org.mockito.InOrder inOrder = org.mockito.Mockito.inOrder(eventGroupRepository);
+        inOrder.verify(eventGroupRepository).existsByJoinCode(any(String.class));
+        inOrder.verify(eventGroupRepository).save(any(EventGroup.class));
     }
 
     private Member createTestMember() {

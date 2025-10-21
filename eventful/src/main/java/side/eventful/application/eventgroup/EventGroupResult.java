@@ -68,4 +68,21 @@ public class EventGroupResult {
             return new GroupMember(memberId, memberName, isLeader);
         }
     }
+
+    @Getter
+    public static class VerifyCode {
+        private final Long groupId;
+        private final String groupName;
+        private final String groupDescription;
+
+        private VerifyCode(Long groupId, String groupName, String groupDescription) {
+            this.groupId = groupId;
+            this.groupName = groupName;
+            this.groupDescription = groupDescription;
+        }
+
+        public static VerifyCode create(Long groupId, String groupName, String groupDescription) {
+            return new VerifyCode(groupId, groupName, groupDescription);
+        }
+    }
 }

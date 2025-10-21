@@ -97,4 +97,21 @@ public class EventGroupController {
             ))
         );
     }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<ApiResponse<EventGroupResponse.VerifyCode>> verifyJoinCode(
+        @RequestBody @Valid EventGroupRequest.VerifyCode request) {
+
+        EventGroupResult.VerifyCode result = eventGroupFacade.verifyJoinCode(
+            EventGroupCriteria.VerifyCode.create(request.getJoinCode())
+        );
+
+        return ResponseEntity.ok(
+            ApiResponse.ok(EventGroupResponse.VerifyCode.create(
+                result.getGroupId(),
+                result.getGroupName(),
+                result.getGroupDescription()
+            ))
+        );
+    }
 }

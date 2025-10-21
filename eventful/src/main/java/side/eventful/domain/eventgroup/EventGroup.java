@@ -30,6 +30,9 @@ public class EventGroup extends BaseEntity {
     @Column(nullable = false, length = 8)
     private String joinPassword;
 
+    @Column(nullable = false, length = 8, unique = true)
+    private String joinCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "leader_id", nullable = false)
     private Member leader;
@@ -37,12 +40,13 @@ public class EventGroup extends BaseEntity {
     @OneToMany(mappedBy = "eventGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventGroupMember> members = new ArrayList<>();
 
-    private EventGroup(String name, String description, String imageUrl, String joinPassword, Member leader) {
+    private EventGroup(String name, String description, String imageUrl, String joinPassword, String joinCode, Member leader) {
         validateCreate(name, description, leader);
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
         this.joinPassword = joinPassword;
+        this.joinCode = joinCode;
         this.leader = leader;
         // 그룹장을 첫 번째 멤버로 자동 추가
         this.members.add(EventGroupMember.of(this, leader));
@@ -50,7 +54,13 @@ public class EventGroup extends BaseEntity {
 
     public static EventGroup create(String name, String description, String imageUrl, Member leader) {
         String generatedPassword = generatePassword();
-        return new EventGroup(name, description, imageUrl, generatedPassword, leader);
+        String generatedCode = generateJoinCode();
+        return new EventGroup(name, description, imageUrl, generatedPassword, generatedCode, leader);
+    }
+
+    public static EventGroup createWithJoinCode(String name, String description, String imageUrl, Member leader, String joinCode) {
+        String generatedPassword = generatePassword();
+        return new EventGroup(name, description, imageUrl, generatedPassword, joinCode, leader);
     }
 
     public void joinMember(Member member, String inputPassword) {
@@ -195,6 +205,21 @@ public class EventGroup extends BaseEntity {
 
         // 문자열을 랜덤하게 섞기
         return shuffleString(password.toString(), random);
+    }
+
+    // 8자리의 랜덤한 초대 코드 생성
+    private static String generateJoinCode() {
+        SecureRandom random = new SecureRandom();
+        StringBuilder code = new StringBuilder();
+
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        // 8자리 랜덤 생성
+        for (int i = 0; i < 8; i++) {
+            code.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return code.toString();
     }
 
     private static String shuffleString(String input, SecureRandom random) {

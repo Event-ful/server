@@ -83,9 +83,23 @@ public class EventGroupFacade {
             eventGroup.getDescription(),
             eventGroup.isLeader(member),
             eventGroup.getMemberCount(),
-            eventGroup.getId().toString(), // join_code를 그룹 ID로 사용
+            eventGroup.getJoinCode(), // 실제 joinCode 필드 사용
             eventGroup.getJoinPassword(),
             groupMembers
+        );
+    }
+
+    public EventGroupResult.VerifyCode verifyJoinCode(EventGroupCriteria.VerifyCode criteria) {
+        EventGroupCommand.VerifyCode command = EventGroupCommand.VerifyCode.create(
+            criteria.getJoinCode()
+        );
+
+        EventGroup eventGroup = eventGroupService.verifyJoinCode(command);
+
+        return EventGroupResult.VerifyCode.create(
+            eventGroup.getId(),
+            eventGroup.getName(),
+            eventGroup.getDescription()
         );
     }
 }

@@ -67,4 +67,18 @@ public class EventGroupRequest {
             return request;
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class VerifyCode {
+        @NotBlank(message = "참가 코드는 필수입니다")
+        @JsonProperty("join_code")
+        private String joinCode;
+
+        public static VerifyCode create(String joinCode) {
+            VerifyCode request = new VerifyCode();
+            request.joinCode = joinCode;
+            return request;
+        }
+    }
 }

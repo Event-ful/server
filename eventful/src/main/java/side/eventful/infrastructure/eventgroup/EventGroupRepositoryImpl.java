@@ -21,4 +21,14 @@ public class EventGroupRepositoryImpl implements EventGroupRepository {
     public Optional<EventGroup> findById(Long id) {
         return eventGroupJpaRepository.findById(id);
     }
+
+    @Override
+    public Optional<EventGroup> findByJoinCode(String joinCode) {
+        return eventGroupJpaRepository.findByJoinCode(joinCode);
+    }
+
+    @Override
+    public boolean existsByJoinCode(String joinCode) {
+        return eventGroupJpaRepository.existsByJoinCode(joinCode);
+    }
 }

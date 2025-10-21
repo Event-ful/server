@@ -105,4 +105,26 @@ public class EventGroupResponse {
             return new Join(groupId);
         }
     }
+
+    @Getter
+    public static class VerifyCode {
+        @JsonProperty("group_id")
+        private final Long groupId;
+
+        @JsonProperty("group_name")
+        private final String groupName;
+
+        @JsonProperty("group_description")
+        private final String groupDescription;
+
+        private VerifyCode(Long groupId, String groupName, String groupDescription) {
+            this.groupId = groupId;
+            this.groupName = groupName;
+            this.groupDescription = groupDescription;
+        }
+
+        public static VerifyCode create(Long groupId, String groupName, String groupDescription) {
+            return new VerifyCode(groupId, groupName, groupDescription);
+        }
+    }
 }

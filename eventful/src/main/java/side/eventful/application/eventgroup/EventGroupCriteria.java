@@ -50,4 +50,14 @@ public class EventGroupCriteria {
             return new Get(eventGroupId);
         }
     }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class VerifyCode {
+        private String joinCode;
+
+        public static VerifyCode create(String joinCode) {
+            return new VerifyCode(joinCode);
+        }
+    }
 }
