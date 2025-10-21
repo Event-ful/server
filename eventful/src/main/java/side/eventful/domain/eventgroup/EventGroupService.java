@@ -32,4 +32,16 @@ public class EventGroupService {
 
         eventGroupRepository.save(eventGroup);
     }
+
+    public EventGroup getGroup(EventGroupCommand.Get command) {
+        EventGroup eventGroup = eventGroupRepository.findById(command.getEventGroupId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다"));
+
+        // 그룹 멤버인지 확인
+        if (!eventGroup.getMembers().contains(command.getRequestMember())) {
+            throw new IllegalArgumentException("그룹에 속하지 않은 사용자입니다");
+        }
+
+        return eventGroup;
+    }
 }

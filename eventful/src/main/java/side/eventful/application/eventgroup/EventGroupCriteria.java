@@ -40,4 +40,14 @@ public class EventGroupCriteria {
             return new Update(eventGroupId, name, description, imageUrl);
         }
     }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Get {
+        private Long eventGroupId;
+
+        public static Get create(Long eventGroupId) {
+            return new Get(eventGroupId);
+        }
+    }
 }

@@ -57,4 +57,35 @@ public class EventGroupFacade {
 
         eventGroupService.updateGroup(command);
     }
+
+    public EventGroupResult.Get getGroup(EventGroupCriteria.Get criteria) {
+        Member member = authService.getAuthenticatedMember();
+
+        EventGroupCommand.Get command = EventGroupCommand.Get.create(
+            criteria.getEventGroupId(),
+            member
+        );
+
+        EventGroup eventGroup = eventGroupService.getGroup(command);
+
+        // 멤버 목록을 정렬하여 변환
+        java.util.List<EventGroupResult.GroupMember> groupMembers = eventGroup.getMembersOrderedByLeaderAndName()
+                .stream()
+                .map(m -> EventGroupResult.GroupMember.create(
+                    m.getId(),
+                    m.getNickname(),
+                    eventGroup.isLeader(m)
+                ))
+                .toList();
+
+        return EventGroupResult.Get.create(
+            eventGroup.getName(),
+            eventGroup.getDescription(),
+            eventGroup.isLeader(member),
+            eventGroup.getMemberCount(),
+            eventGroup.getId().toString(), // join_code를 그룹 ID로 사용
+            eventGroup.getJoinPassword(),
+            groupMembers
+        );
+    }
 }

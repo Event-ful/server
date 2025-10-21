@@ -3,6 +3,7 @@ package side.eventful.interfaces.eventgroup;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -62,5 +63,36 @@ public class EventGroupController {
         );
 
         return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    @GetMapping("/{groupId}")
+    public ResponseEntity<ApiResponse<EventGroupResponse.Get>> getEventGroup(
+        @PathVariable Long groupId) {
+
+        EventGroupResult.Get result = eventGroupFacade.getGroup(
+            EventGroupCriteria.Get.create(groupId)
+        );
+
+        // GroupMember 변환
+        java.util.List<EventGroupResponse.GroupMember> responseMembers = result.getGroupMembers()
+                .stream()
+                .map(member -> EventGroupResponse.GroupMember.create(
+                    member.getMemberId(),
+                    member.getMemberName(),
+                    member.isLeader()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(
+            ApiResponse.ok(EventGroupResponse.Get.create(
+                result.getGroupName(),
+                result.getGroupDescription(),
+                result.isLeader(),
+                result.getMemberCount(),
+                result.getJoinCode(),
+                result.getGroupPassword(),
+                responseMembers
+            ))
+        );
     }
 }

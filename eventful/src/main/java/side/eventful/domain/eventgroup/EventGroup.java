@@ -94,6 +94,31 @@ public class EventGroup extends BaseEntity {
                 .toList();
     }
 
+    public List<Member> getMembersOrderedByLeaderAndName() {
+        return members.stream()
+                .map(EventGroupMember::getMember)
+                .sorted((m1, m2) -> {
+                    // is_leader 오름차순 (그룹장이 먼저)
+                    boolean isM1Leader = this.leader.equals(m1);
+                    boolean isM2Leader = this.leader.equals(m2);
+
+                    if (isM1Leader && !isM2Leader) return -1;
+                    if (!isM1Leader && isM2Leader) return 1;
+
+                    // member_name 오름차순
+                    return m1.getNickname().compareTo(m2.getNickname());
+                })
+                .toList();
+    }
+
+    public boolean isLeader(Member member) {
+        return this.leader.equals(member);
+    }
+
+    public int getMemberCount() {
+        return this.members.size();
+    }
+
     private void validateCreate(String name, String description, Member leader) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("그룹 이름은 필수입니다");

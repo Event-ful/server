@@ -44,4 +44,15 @@ public class EventGroupCommand {
             return new Update(eventGroupId, name, description, imageUrl, requestMember);
         }
     }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Get {
+        private Long eventGroupId;
+        private Member requestMember;
+
+        public static Get create(Long eventGroupId, Member requestMember) {
+            return new Get(eventGroupId, requestMember);
+        }
+    }
 }
