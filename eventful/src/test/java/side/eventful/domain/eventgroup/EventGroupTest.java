@@ -114,6 +114,69 @@ class EventGroupTest {
             .hasMessage("그룹장은 필수입니다");
     }
 
+    @Test
+    @DisplayName("비밀번호로 그룹에 참여할 수 있다")
+    void joinMember_validPassword_success() {
+        // given
+        Member leader = createTestMember();
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+        Member newMember = Member.create("test2@example.com", "password", "참여자", passwordEncoder);
+        String joinPassword = eventGroup.getJoinPassword();
+
+        // when
+        eventGroup.joinMember(newMember, joinPassword);
+
+        // then
+        assertThat(eventGroup.getMembers()).contains(newMember);
+        assertThat(eventGroup.getMembers()).hasSize(2); // 그룹장 + 새 멤버
+    }
+
+    @Test
+    @DisplayName("잘못된 비밀번호로는 그룹에 참여할 수 없다")
+    void joinMember_wrongPassword_throwsException() {
+        // given
+        Member leader = createTestMember();
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+        Member newMember = Member.create("test2@example.com", "password", "참여자", passwordEncoder);
+        String wrongPassword = "wrongpwd";
+
+        // when & then
+        assertThatThrownBy(() -> eventGroup.joinMember(newMember, wrongPassword))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("잘못된 비밀번호입니다");
+    }
+
+    @Test
+    @DisplayName("이미 그룹에 가입된 회원은 다시 참여할 수 없다")
+    void joinMember_alreadyJoined_throwsException() {
+        // given
+        Member leader = createTestMember();
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+        Member newMember = Member.create("test2@example.com", "password", "참여자", passwordEncoder);
+        String joinPassword = eventGroup.getJoinPassword();
+        eventGroup.joinMember(newMember, joinPassword);
+
+        // when & then
+        assertThatThrownBy(() -> eventGroup.joinMember(newMember, joinPassword))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("이미 그룹에 가입된 회원입니다");
+    }
+
+    @Test
+    @DisplayName("그룹 생성 시 그룹장이 첫 번째 멤버로 자동 추가된다")
+    void create_validInput_leaderAddedAsMember() {
+        // given
+        Member leader = createTestMember();
+
+        // when
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+
+        // then
+        assertThat(eventGroup.getMembers()).contains(leader);
+        assertThat(eventGroup.getMembers()).hasSize(1);
+        assertThat(eventGroup.getLeader()).isEqualTo(leader);
+    }
+
     private Member createTestMember() {
         return Member.create("test@example.com", "password", "테스터", passwordEncoder);
     }

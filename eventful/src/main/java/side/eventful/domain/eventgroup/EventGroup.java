@@ -34,6 +34,9 @@ public class EventGroup extends BaseEntity {
     @JoinColumn(name = "leader_id", nullable = false)
     private Member leader;
 
+    @OneToMany(mappedBy = "eventGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventGroupMember> members = new ArrayList<>();
+
     private EventGroup(String name, String description, String imageUrl, String joinPassword, Member leader) {
         validateCreate(name, description, leader);
         this.name = name;
@@ -41,11 +44,45 @@ public class EventGroup extends BaseEntity {
         this.imageUrl = imageUrl;
         this.joinPassword = joinPassword;
         this.leader = leader;
+        // 그룹장을 첫 번째 멤버로 자동 추가
+        this.members.add(EventGroupMember.of(this, leader));
     }
 
     public static EventGroup create(String name, String description, String imageUrl, Member leader) {
         String generatedPassword = generatePassword();
         return new EventGroup(name, description, imageUrl, generatedPassword, leader);
+    }
+
+    public void joinMember(Member member, String inputPassword) {
+        validatePassword(inputPassword);
+        validateMemberNotExists(member);
+
+        this.members.add(EventGroupMember.of(this, member));
+    }
+
+    public void leaveMember(Member member) {
+        validateMemberExists(member);
+        if (this.leader.equals(member)) {
+            throw new IllegalArgumentException("그룹장은 그룹장 위임 후에 탈퇴할 수 있습니다");
+        }
+
+        this.members.removeIf(eventGroupMember ->
+                eventGroupMember.getMember().equals(member));
+    }
+
+    public void removeMember(Member targetMember, Member requestMember) {
+        validateLeaderPermission(requestMember);
+        validateMemberExists(targetMember);
+        validateNotRemovingLeader(targetMember);
+
+        this.members.removeIf(eventGroupMember ->
+                eventGroupMember.getMember().equals(targetMember));
+    }
+
+    public List<Member> getMembers() {
+        return members.stream()
+                .map(EventGroupMember::getMember)
+                .toList();
     }
 
     private void validateCreate(String name, String description, Member leader) {
@@ -60,6 +97,36 @@ public class EventGroup extends BaseEntity {
         }
         if (leader == null) {
             throw new IllegalArgumentException("그룹장은 필수입니다");
+        }
+    }
+
+    private void validatePassword(String inputPassword) {
+        if (!this.joinPassword.equals(inputPassword)) {
+            throw new IllegalArgumentException("잘못된 비밀번호입니다");
+        }
+    }
+
+    private void validateMemberNotExists(Member member) {
+        if (this.members.stream().anyMatch(eventGroupMember -> eventGroupMember.getMember().equals(member))) {
+            throw new IllegalArgumentException("이미 그룹에 가입된 회원입니다");
+        }
+    }
+
+    private void validateMemberExists(Member member) {
+        if (this.members.stream().noneMatch(eventGroupMember -> eventGroupMember.getMember().equals(member))) {
+            throw new IllegalArgumentException("그룹에 가입되지 않은 회원입니다");
+        }
+    }
+
+    private void validateLeaderPermission(Member requestMember) {
+        if (!this.leader.equals(requestMember)) {
+            throw new IllegalArgumentException("그룹장만이 회원을 추방할 수 있습니다");
+        }
+    }
+
+    private void validateNotRemovingLeader(Member targetMember) {
+        if (this.leader.equals(targetMember)) {
+            throw new IllegalArgumentException("그룹장은 추방할 수 없습니다");
         }
     }
 

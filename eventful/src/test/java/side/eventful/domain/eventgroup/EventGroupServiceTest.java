@@ -9,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import side.eventful.domain.member.Member;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -124,5 +126,64 @@ class EventGroupServiceTest {
 
         // when, then
         assertThrows(IllegalArgumentException.class, () -> eventGroupService.create(command));
+    }
+
+    @Test
+    @DisplayName("그룹 참여 - 정상 케이스")
+    void joinGroup_withValidInput_success() {
+        // given
+        Member leader = Member.create("leader@test.com", "password", "그룹장", passwordEncoder);
+        Member member = Member.create("member@test.com", "password", "참여자", passwordEncoder);
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+
+        given(eventGroupRepository.findById(1L))
+                .willReturn(Optional.of(eventGroup));
+        given(eventGroupRepository.save(any(EventGroup.class)))
+                .willReturn(eventGroup);
+
+        EventGroupCommand.Join command = EventGroupCommand.Join.create(1L, member, eventGroup.getJoinPassword());
+
+        // when
+        eventGroupService.joinGroup(command);
+
+        // then
+        verify(eventGroupRepository).findById(1L);
+        verify(eventGroupRepository).save(eventGroup);
+    }
+
+    @Test
+    @DisplayName("그룹 참여 - 존재하지 않는 그룹")
+    void joinGroup_withNonExistentGroup_throwsException() {
+        // given
+        Member member = Member.create("member@test.com", "password", "참여자", passwordEncoder);
+        EventGroupCommand.Join command = EventGroupCommand.Join.create(999L, member, "password");
+
+        given(eventGroupRepository.findById(999L))
+                .willReturn(Optional.empty());
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> eventGroupService.joinGroup(command));
+        verify(eventGroupRepository).findById(999L);
+    }
+
+    @Test
+    @DisplayName("그룹 참여 - 잘못된 비밀번호로 도메인 오류")
+    void joinGroup_withWrongPassword_throwsException() {
+        // given
+        Member leader = Member.create("leader@test.com", "password", "그룹장", passwordEncoder);
+        Member member = Member.create("member@test.com", "password", "참여자", passwordEncoder);
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+
+        given(eventGroupRepository.findById(1L))
+                .willReturn(Optional.of(eventGroup));
+
+        EventGroupCommand.Join command = EventGroupCommand.Join.create(1L, member, "wrongpass");
+
+        // when, then
+        assertThrows(IllegalArgumentException.class, () -> eventGroupService.joinGroup(command));
+    }
+
+    private Member createTestMember() {
+        return Member.create("test@example.com", "password", "테스터", passwordEncoder);
     }
 }

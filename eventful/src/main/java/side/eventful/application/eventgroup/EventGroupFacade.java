@@ -32,4 +32,15 @@ public class EventGroupFacade {
         );
     }
 
+    public void joinGroup(EventGroupCriteria.Join criteria) {
+        Member member = authService.getAuthenticatedMember();
+
+        EventGroupCommand.Join command = EventGroupCommand.Join.create(
+            criteria.getEventGroupId(),
+            member,
+            criteria.getJoinPassword()
+        );
+
+        eventGroupService.joinGroup(command);
+    }
 }

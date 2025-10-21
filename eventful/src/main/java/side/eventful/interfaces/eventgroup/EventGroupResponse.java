@@ -1,5 +1,6 @@
 package side.eventful.interfaces.eventgroup;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 public class EventGroupResponse {
@@ -9,7 +10,11 @@ public class EventGroupResponse {
         private final Long id;
         private final String name;
         private final String description;
+
+        @JsonProperty("image_url")
         private final String imageUrl;
+
+        @JsonProperty("join_password")
         private final String joinPassword;
 
         private Create(Long id, String name, String description, String imageUrl, String joinPassword) {

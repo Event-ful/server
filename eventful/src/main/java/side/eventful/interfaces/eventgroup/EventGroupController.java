@@ -3,6 +3,7 @@ package side.eventful.interfaces.eventgroup;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,5 +37,17 @@ public class EventGroupController {
                 result.getJoinPassword()
             ))
         );
+    }
+
+    @PostMapping("/{groupId}/join")
+    public ResponseEntity<ApiResponse> joinEventGroup(
+        @PathVariable Long groupId,
+        @RequestBody @Valid EventGroupRequest.Join request) {
+
+        eventGroupFacade.joinGroup(
+            EventGroupCriteria.Join.create(groupId, request.getJoinPassword())
+        );
+
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 }

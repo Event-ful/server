@@ -14,4 +14,13 @@ public class EventGroupService {
 
         return eventGroupRepository.save(eventGroup);
     }
+
+    public void joinGroup(EventGroupCommand.Join command) {
+        EventGroup eventGroup = eventGroupRepository.findById(command.getEventGroupId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다"));
+
+        eventGroup.joinMember(command.getMember(), command.getJoinPassword());
+
+        eventGroupRepository.save(eventGroup);
+    }
 }
