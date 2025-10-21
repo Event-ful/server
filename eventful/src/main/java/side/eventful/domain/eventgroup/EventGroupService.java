@@ -23,4 +23,13 @@ public class EventGroupService {
 
         eventGroupRepository.save(eventGroup);
     }
+
+    public void updateGroup(EventGroupCommand.Update command) {
+        EventGroup eventGroup = eventGroupRepository.findById(command.getEventGroupId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다"));
+
+        eventGroup.updateGroup(command.getName(), command.getDescription(), command.getImageUrl(), command.getRequestMember());
+
+        eventGroupRepository.save(eventGroup);
+    }
 }

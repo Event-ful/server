@@ -70,6 +70,15 @@ public class EventGroup extends BaseEntity {
                 eventGroupMember.getMember().equals(member));
     }
 
+    public void updateGroup(String name, String description, String imageUrl, Member requestMember) {
+        validateLeaderPermission(requestMember);
+        validateUpdateInput(name, description);
+
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+    }
+
     public void removeMember(Member targetMember, Member requestMember) {
         validateLeaderPermission(requestMember);
         validateMemberExists(targetMember);
@@ -127,6 +136,15 @@ public class EventGroup extends BaseEntity {
     private void validateNotRemovingLeader(Member targetMember) {
         if (this.leader.equals(targetMember)) {
             throw new IllegalArgumentException("그룹장은 추방할 수 없습니다");
+        }
+    }
+
+    private void validateUpdateInput(String name, String description) {
+        if (name != null && name.length() > 15) {
+            throw new IllegalArgumentException("그룹 이름은 15자를 초과할 수 없습니다");
+        }
+        if (description != null && description.length() > 200) {
+            throw new IllegalArgumentException("그룹 소개는 200자를 초과할 수 없습니다");
         }
     }
 

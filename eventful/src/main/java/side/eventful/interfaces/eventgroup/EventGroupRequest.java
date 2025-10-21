@@ -44,4 +44,27 @@ public class EventGroupRequest {
             return request;
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class Update {
+        @JsonProperty("group_name")
+        @Size(max = 15, message = "그룹 이름은 15자를 초과할 수 없습니다")
+        private String groupName;
+
+        @JsonProperty("group_description")
+        @Size(max = 200, message = "그룹 소개는 200자를 초과할 수 없습니다")
+        private String groupDescription;
+
+        @JsonProperty("group_image")
+        private String groupImage;
+
+        public static Update create(String groupName, String groupDescription, String groupImage) {
+            Update request = new Update();
+            request.groupName = groupName;
+            request.groupDescription = groupDescription;
+            request.groupImage = groupImage;
+            return request;
+        }
+    }
 }

@@ -30,4 +30,18 @@ public class EventGroupCommand {
             return new Join(eventGroupId, member, joinPassword);
         }
     }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Update {
+        private Long eventGroupId;
+        private String name;
+        private String description;
+        private String imageUrl;
+        private Member requestMember;
+
+        public static Update create(Long eventGroupId, String name, String description, String imageUrl, Member requestMember) {
+            return new Update(eventGroupId, name, description, imageUrl, requestMember);
+        }
+    }
 }

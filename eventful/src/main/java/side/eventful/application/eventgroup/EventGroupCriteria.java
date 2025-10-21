@@ -27,4 +27,17 @@ public class EventGroupCriteria {
             return new Join(eventGroupId, joinPassword);
         }
     }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Update {
+        private Long eventGroupId;
+        private String name;
+        private String description;
+        private String imageUrl;
+
+        public static Update create(Long eventGroupId, String name, String description, String imageUrl) {
+            return new Update(eventGroupId, name, description, imageUrl);
+        }
+    }
 }

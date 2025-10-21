@@ -43,4 +43,18 @@ public class EventGroupFacade {
 
         eventGroupService.joinGroup(command);
     }
+
+    public void updateGroup(EventGroupCriteria.Update criteria) {
+        Member member = authService.getAuthenticatedMember();
+
+        EventGroupCommand.Update command = EventGroupCommand.Update.create(
+            criteria.getEventGroupId(),
+            criteria.getName(),
+            criteria.getDescription(),
+            criteria.getImageUrl(),
+            member
+        );
+
+        eventGroupService.updateGroup(command);
+    }
 }
