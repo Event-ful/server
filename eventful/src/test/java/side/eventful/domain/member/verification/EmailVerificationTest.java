@@ -2,6 +2,7 @@ package side.eventful.domain.member.verification;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import side.eventful.global.error.exception.BusinessException;
 
 import java.time.LocalDateTime;
 
@@ -52,7 +53,7 @@ class EmailVerificationTest {
         EmailVerification emailVerification =
             EmailVerification.create(email, verificationCode, expiryDateTime);
 
-        assertThrows(IllegalStateException.class, () -> emailVerification.verify(verificationDateTime));
+        assertThrows(BusinessException.class, () -> emailVerification.verify(verificationDateTime));
     }
 
     @Test
@@ -68,6 +69,6 @@ class EmailVerificationTest {
 
         emailVerification.verify(verificationDateTime);
 
-        assertThrows(IllegalStateException.class, () -> emailVerification.verify(verificationDateTime));
+        assertThrows(BusinessException.class, () -> emailVerification.verify(verificationDateTime));
     }
 }

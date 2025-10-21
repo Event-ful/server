@@ -1,0 +1,63 @@
+package side.eventful.application.eventgroup;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+public class EventGroupCriteria {
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Create {
+        private String name;
+        private String description;
+        private String imageUrl;
+
+        public static Create create(String name, String description, String imageUrl) {
+            return new Create(name, description, imageUrl);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Join {
+        private Long eventGroupId;
+        private String groupPassword;
+
+        public static Join create(Long eventGroupId, String groupPassword) {
+            return new Join(eventGroupId, groupPassword);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Update {
+        private Long eventGroupId;
+        private String name;
+        private String description;
+        private String imageUrl;
+
+        public static Update create(Long eventGroupId, String name, String description, String imageUrl) {
+            return new Update(eventGroupId, name, description, imageUrl);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Get {
+        private Long eventGroupId;
+
+        public static Get create(Long eventGroupId) {
+            return new Get(eventGroupId);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class VerifyCode {
+        private String joinCode;
+
+        public static VerifyCode create(String joinCode) {
+            return new VerifyCode(joinCode);
+        }
+    }
+}
