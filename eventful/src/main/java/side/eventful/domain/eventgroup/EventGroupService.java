@@ -19,7 +19,7 @@ public class EventGroupService {
         EventGroup eventGroup = eventGroupRepository.findById(command.getEventGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다"));
 
-        eventGroup.joinMember(command.getMember(), command.getJoinPassword());
+        eventGroup.joinMember(command.getMember(), command.getGroupPassword());
 
         eventGroupRepository.save(eventGroup);
     }

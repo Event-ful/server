@@ -35,12 +35,12 @@ public class EventGroupRequest {
     public static class Join {
         @NotBlank(message = "참가 비밀번호는 필수입니다")
         @Size(min = 8, max = 8, message = "참가 비밀번호는 8자여야 합니다")
-        @JsonProperty("join_password")
-        private String joinPassword;
+        @JsonProperty("group_password")
+        private String groupPassword;
 
-        public static Join create(String joinPassword) {
+        public static Join create(String groupPassword) {
             Join request = new Join();
-            request.joinPassword = joinPassword;
+            request.groupPassword = groupPassword;
             return request;
         }
     }

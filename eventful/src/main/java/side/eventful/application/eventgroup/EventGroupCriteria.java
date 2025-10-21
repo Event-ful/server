@@ -21,10 +21,10 @@ public class EventGroupCriteria {
     @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
     public static class Join {
         private Long eventGroupId;
-        private String joinPassword;
+        private String groupPassword;
 
-        public static Join create(Long eventGroupId, String joinPassword) {
-            return new Join(eventGroupId, joinPassword);
+        public static Join create(Long eventGroupId, String groupPassword) {
+            return new Join(eventGroupId, groupPassword);
         }
     }
 

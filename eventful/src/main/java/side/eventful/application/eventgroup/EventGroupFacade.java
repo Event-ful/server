@@ -38,7 +38,7 @@ public class EventGroupFacade {
         EventGroupCommand.Join command = EventGroupCommand.Join.create(
             criteria.getEventGroupId(),
             member,
-            criteria.getJoinPassword()
+            criteria.getGroupPassword()
         );
 
         eventGroupService.joinGroup(command);

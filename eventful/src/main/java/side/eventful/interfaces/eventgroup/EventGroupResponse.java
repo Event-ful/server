@@ -91,4 +91,18 @@ public class EventGroupResponse {
             return new GroupMember(memberId, memberName, isLeader);
         }
     }
+
+    @Getter
+    public static class Join {
+        @JsonProperty("group_id")
+        private final Long groupId;
+
+        private Join(Long groupId) {
+            this.groupId = groupId;
+        }
+
+        public static Join create(Long groupId) {
+            return new Join(groupId);
+        }
+    }
 }

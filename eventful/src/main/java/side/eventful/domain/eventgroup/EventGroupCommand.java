@@ -24,7 +24,7 @@ public class EventGroupCommand {
     public static class Join {
         private Long eventGroupId;
         private Member member;
-        private String joinPassword;
+        private String groupPassword;
 
         public static Join create(Long eventGroupId, Member member, String joinPassword) {
             return new Join(eventGroupId, member, joinPassword);

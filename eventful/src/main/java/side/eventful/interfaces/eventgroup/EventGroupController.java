@@ -42,15 +42,17 @@ public class EventGroupController {
     }
 
     @PostMapping("/{groupId}/join")
-    public ResponseEntity<ApiResponse> joinEventGroup(
+    public ResponseEntity<ApiResponse<EventGroupResponse.Join>> joinEventGroup(
         @PathVariable Long groupId,
         @RequestBody @Valid EventGroupRequest.Join request) {
 
         eventGroupFacade.joinGroup(
-            EventGroupCriteria.Join.create(groupId, request.getJoinPassword())
+            EventGroupCriteria.Join.create(groupId, request.getGroupPassword())
         );
 
-        return ResponseEntity.ok(ApiResponse.ok());
+        return ResponseEntity.ok(
+            ApiResponse.ok(EventGroupResponse.Join.create(groupId))
+        );
     }
 
     @PutMapping("/{groupId}")
