@@ -41,9 +41,9 @@ public class EventGroupController {
         );
     }
 
-    @PostMapping("/{groupId}/join")
+    @PostMapping("/{group-id}/join")
     public ResponseEntity<ApiResponse<EventGroupResponse.Join>> joinEventGroup(
-        @PathVariable Long groupId,
+        @PathVariable("group-id") Long groupId,
         @RequestBody @Valid EventGroupRequest.Join request) {
 
         eventGroupFacade.joinGroup(
@@ -55,9 +55,9 @@ public class EventGroupController {
         );
     }
 
-    @PutMapping("/{groupId}")
+    @PutMapping("/{group-id}")
     public ResponseEntity<ApiResponse> updateEventGroup(
-        @PathVariable Long groupId,
+        @PathVariable("group-id") Long groupId,
         @RequestBody @Valid EventGroupRequest.Update request) {
 
         eventGroupFacade.updateGroup(
@@ -67,9 +67,9 @@ public class EventGroupController {
         return ResponseEntity.ok(ApiResponse.ok());
     }
 
-    @GetMapping("/{groupId}")
+    @GetMapping("/{group-id}")
     public ResponseEntity<ApiResponse<EventGroupResponse.Get>> getEventGroup(
-        @PathVariable Long groupId) {
+        @PathVariable("group-id") Long groupId) {
 
         EventGroupResult.Get result = eventGroupFacade.getGroup(
             EventGroupCriteria.Get.create(groupId)

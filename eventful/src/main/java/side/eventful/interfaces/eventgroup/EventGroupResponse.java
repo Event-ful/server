@@ -1,6 +1,5 @@
 package side.eventful.interfaces.eventgroup;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 public class EventGroupResponse {
@@ -10,11 +9,7 @@ public class EventGroupResponse {
         private final Long id;
         private final String name;
         private final String description;
-
-        @JsonProperty("image_url")
         private final String imageUrl;
-
-        @JsonProperty("join_password")
         private final String joinPassword;
 
         private Create(Long id, String name, String description, String imageUrl, String joinPassword) {
@@ -32,25 +27,12 @@ public class EventGroupResponse {
 
     @Getter
     public static class Get {
-        @JsonProperty("group_name")
         private final String groupName;
-
-        @JsonProperty("group_description")
         private final String groupDescription;
-
-        @JsonProperty("is_leader")
         private final boolean isLeader;
-
-        @JsonProperty("member_count")
         private final int memberCount;
-
-        @JsonProperty("join_code")
         private final String joinCode;
-
-        @JsonProperty("group_password")
         private final String groupPassword;
-
-        @JsonProperty("group_member")
         private final java.util.List<GroupMember> groupMembers;
 
         private Get(String groupName, String groupDescription, boolean isLeader, int memberCount,
@@ -72,13 +54,8 @@ public class EventGroupResponse {
 
     @Getter
     public static class GroupMember {
-        @JsonProperty("member_id")
         private final Long memberId;
-
-        @JsonProperty("member_name")
         private final String memberName;
-
-        @JsonProperty("is_leader")
         private final boolean isLeader;
 
         private GroupMember(Long memberId, String memberName, boolean isLeader) {
@@ -94,7 +71,6 @@ public class EventGroupResponse {
 
     @Getter
     public static class Join {
-        @JsonProperty("group_id")
         private final Long groupId;
 
         private Join(Long groupId) {
@@ -108,13 +84,8 @@ public class EventGroupResponse {
 
     @Getter
     public static class VerifyCode {
-        @JsonProperty("group_id")
         private final Long groupId;
-
-        @JsonProperty("group_name")
         private final String groupName;
-
-        @JsonProperty("group_description")
         private final String groupDescription;
 
         private VerifyCode(Long groupId, String groupName, String groupDescription) {

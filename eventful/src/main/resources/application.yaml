@@ -4,6 +4,8 @@ sever:
 spring:
   application:
     name: eventful
+  jackson:
+    property-naming-strategy: SNAKE_CASE
   sendgrid:
     from: ${SENDERGRID_FROM}
     api-key: ${SENDERGRID_APIKEY}
