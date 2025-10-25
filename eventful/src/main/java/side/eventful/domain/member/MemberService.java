@@ -1,8 +1,11 @@
 package side.eventful.domain.member;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import side.eventful.global.error.exception.BusinessException;
+import side.eventful.global.error.exception.ErrorDivision;
 
 @Service
 @AllArgsConstructor
@@ -23,11 +26,11 @@ public class MemberService {
 
     public void validateNicknameNotExists(MemberCommand.ValidateNicknameNotExists command) {
         if (command.getNickname() == null || command.getNickname().isEmpty()) {
-            throw new IllegalArgumentException("닉네임을 입력해주세요.");
+            throw new BusinessException(HttpStatus.BAD_REQUEST.value(), "닉네임을 입력해주세요.", ErrorDivision.CHECK_NICKNAME_REQUIRED);
         }
 
         if (memberRepository.existsByNickname(command.getNickname())) {
-            throw new IllegalArgumentException("이미 등록된 닉네임입니다.");
+            throw new BusinessException(HttpStatus.BAD_REQUEST.value(), "이미 등록된 닉네임입니다.", ErrorDivision.CHECK_NICKNAME_EXISTS);
         }
     }
 
