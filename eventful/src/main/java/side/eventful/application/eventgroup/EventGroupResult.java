@@ -85,4 +85,38 @@ public class EventGroupResult {
             return new VerifyCode(groupId, groupName, groupDescription);
         }
     }
+
+    @Getter
+    public static class GetList {
+        private final java.util.List<GroupSummary> groups;
+
+        private GetList(java.util.List<GroupSummary> groups) {
+            this.groups = groups;
+        }
+
+        public static GetList create(java.util.List<GroupSummary> groups) {
+            return new GetList(groups);
+        }
+    }
+
+    @Getter
+    public static class GroupSummary {
+        private final Long groupId;
+        private final String groupName;
+        private final String groupDescription;
+        private final String groupImageUrl;
+        private final int memberCount;
+
+        private GroupSummary(Long groupId, String groupName, String groupDescription, String groupImageUrl, int memberCount) {
+            this.groupId = groupId;
+            this.groupName = groupName;
+            this.groupDescription = groupDescription;
+            this.groupImageUrl = groupImageUrl;
+            this.memberCount = memberCount;
+        }
+
+        public static GroupSummary create(Long groupId, String groupName, String groupDescription, String groupImageUrl, int memberCount) {
+            return new GroupSummary(groupId, groupName, groupDescription, groupImageUrl, memberCount);
+        }
+    }
 }

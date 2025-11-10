@@ -127,6 +127,72 @@ class EventGroupFacadeTest {
         assertThrows(RuntimeException.class, () -> eventGroupFacade.create(criteria));
     }
 
+    @Test
+    @DisplayName("그룹 목록 조회 - 정상 케이스")
+    void getGroupList_withAuthenticatedUser_success() {
+        // given
+        Member authenticatedMember = createTestMember();
+        EventGroupCriteria.GetList criteria = EventGroupCriteria.GetList.create();
+
+        // 회원이 참여한 그룹 3개 생성
+        EventGroup group1 = EventGroup.createWithJoinCode("제주도 여행", "2박 3일", "image1.jpg", authenticatedMember, "CODE1234");
+        EventGroup group2 = EventGroup.createWithJoinCode("부산 여행", "1박 2일", "image2.jpg", authenticatedMember, "CODE5678");
+        EventGroup group3 = EventGroup.createWithJoinCode("서울 모임", "주말 모임", null, authenticatedMember, "CODE9012");
+
+        java.util.List<EventGroup> groups = java.util.List.of(group1, group2, group3);
+
+        given(authService.getAuthenticatedMember())
+                .willReturn(authenticatedMember);
+        given(eventGroupService.getGroupList(any(EventGroupCommand.GetList.class)))
+                .willReturn(groups);
+
+        // when
+        EventGroupResult.GetList result = eventGroupFacade.getGroupList(criteria);
+
+        // then
+        assertThat(result.getGroups()).hasSize(3);
+        assertThat(result.getGroups().get(0).getGroupName()).isEqualTo("제주도 여행");
+        assertThat(result.getGroups().get(0).getGroupDescription()).isEqualTo("2박 3일");
+        assertThat(result.getGroups().get(0).getMemberCount()).isEqualTo(1); // 그룹장만 있음
+        assertThat(result.getGroups().get(1).getGroupName()).isEqualTo("부산 여행");
+        assertThat(result.getGroups().get(2).getGroupName()).isEqualTo("서울 모임");
+        assertThat(result.getGroups().get(2).getGroupImageUrl()).isNull();
+        verify(eventGroupService).getGroupList(any(EventGroupCommand.GetList.class));
+    }
+
+    @Test
+    @DisplayName("그룹 목록 조회 - 참여한 그룹이 없는 경우")
+    void getGroupList_withNoGroups_returnsEmptyList() {
+        // given
+        Member authenticatedMember = createTestMember();
+        EventGroupCriteria.GetList criteria = EventGroupCriteria.GetList.create();
+
+        given(authService.getAuthenticatedMember())
+                .willReturn(authenticatedMember);
+        given(eventGroupService.getGroupList(any(EventGroupCommand.GetList.class)))
+                .willReturn(java.util.List.of());
+
+        // when
+        EventGroupResult.GetList result = eventGroupFacade.getGroupList(criteria);
+
+        // then
+        assertThat(result.getGroups()).isEmpty();
+        verify(eventGroupService).getGroupList(any(EventGroupCommand.GetList.class));
+    }
+
+    @Test
+    @DisplayName("그룹 목록 조회 - 인증되지 않은 사용자")
+    void getGroupList_withUnauthenticatedUser_throwsException() {
+        // given
+        EventGroupCriteria.GetList criteria = EventGroupCriteria.GetList.create();
+
+        given(authService.getAuthenticatedMember())
+                .willThrow(new IllegalStateException("인증되지 않은 사용자입니다"));
+
+        // when, then
+        assertThrows(IllegalStateException.class, () -> eventGroupFacade.getGroupList(criteria));
+    }
+
     private Member createTestMember() {
         return Member.create("test@example.com", "password", "테스터", passwordEncoder);
     }

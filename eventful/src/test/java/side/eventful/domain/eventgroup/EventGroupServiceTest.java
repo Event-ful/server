@@ -24,6 +24,9 @@ class EventGroupServiceTest {
     @Mock
     private EventGroupRepository eventGroupRepository;
 
+    @Mock
+    private side.eventful.domain.member.MemberRepository memberRepository;
+
     private PasswordEncoder passwordEncoder = new TestPasswordEncoder();
 
     @InjectMocks

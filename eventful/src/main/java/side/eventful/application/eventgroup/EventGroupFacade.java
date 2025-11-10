@@ -102,4 +102,36 @@ public class EventGroupFacade {
             eventGroup.getDescription()
         );
     }
+
+    public void removeMember(EventGroupCriteria.RemoveMember criteria) {
+        Member requestMember = authService.getAuthenticatedMember();
+
+        EventGroupCommand.RemoveMember command = EventGroupCommand.RemoveMember.create(
+            criteria.getEventGroupId(),
+            criteria.getTargetMemberId(),
+            requestMember
+        );
+
+        eventGroupService.removeMember(command);
+    }
+
+    public EventGroupResult.GetList getGroupList(EventGroupCriteria.GetList criteria) {
+        Member member = authService.getAuthenticatedMember();
+
+        EventGroupCommand.GetList command = EventGroupCommand.GetList.create(member);
+
+        java.util.List<EventGroup> eventGroups = eventGroupService.getGroupList(command);
+
+        java.util.List<EventGroupResult.GroupSummary> groupSummaries = eventGroups.stream()
+                .map(group -> EventGroupResult.GroupSummary.create(
+                    group.getId(),
+                    group.getName(),
+                    group.getDescription(),
+                    group.getImageUrl(),
+                    group.getMemberCount()
+                ))
+                .toList();
+
+        return EventGroupResult.GetList.create(groupSummaries);
+    }
 }

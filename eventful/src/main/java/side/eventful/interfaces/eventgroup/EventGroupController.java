@@ -3,6 +3,7 @@ package side.eventful.interfaces.eventgroup;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -112,6 +113,40 @@ public class EventGroupController {
                 result.getGroupName(),
                 result.getGroupDescription()
             ))
+        );
+    }
+
+    @DeleteMapping("/{group-id}/members/{member-id}")
+    public ResponseEntity<ApiResponse> removeMember(
+        @PathVariable("group-id") Long groupId,
+        @PathVariable("member-id") Long memberId) {
+
+        eventGroupFacade.removeMember(
+            EventGroupCriteria.RemoveMember.create(groupId, memberId)
+        );
+
+        return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<EventGroupResponse.GetList>> getEventGroups() {
+        EventGroupResult.GetList result = eventGroupFacade.getGroupList(
+            EventGroupCriteria.GetList.create()
+        );
+
+        java.util.List<EventGroupResponse.GroupSummary> responseGroups = result.getGroups()
+                .stream()
+                .map(group -> EventGroupResponse.GroupSummary.create(
+                    group.getGroupId(),
+                    group.getGroupName(),
+                    group.getGroupDescription(),
+                    group.getGroupImageUrl(),
+                    group.getMemberCount()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(
+            ApiResponse.ok(EventGroupResponse.GetList.create(responseGroups))
         );
     }
 }

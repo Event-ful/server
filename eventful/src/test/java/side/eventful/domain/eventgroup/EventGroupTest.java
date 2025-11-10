@@ -239,6 +239,69 @@ class EventGroupTest {
             .hasMessage("그룹 소개는 200자를 초과할 수 없습니다");
     }
 
+    @Test
+    @DisplayName("그룹장이 그룹 멤버를 추방할 수 있다")
+    void removeMember_leaderRequest_success() {
+        // given
+        Member leader = createTestMember();
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+        Member targetMember = Member.create("target@example.com", "password", "추방대상", passwordEncoder);
+        String joinPassword = eventGroup.getJoinPassword();
+        eventGroup.joinMember(targetMember, joinPassword);
+
+        // when
+        eventGroup.removeMember(targetMember, leader);
+
+        // then
+        assertThat(eventGroup.getMembers()).doesNotContain(targetMember);
+        assertThat(eventGroup.getMembers()).hasSize(1); // 그룹장만 남음
+    }
+
+    @Test
+    @DisplayName("그룹장이 아닌 멤버는 다른 멤버를 추방할 수 없다")
+    void removeMember_nonLeaderRequest_throwsException() {
+        // given
+        Member leader = createTestMember();
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+        Member member1 = Member.create("member1@example.com", "password", "멤버1", passwordEncoder);
+        Member member2 = Member.create("member2@example.com", "password", "멤버2", passwordEncoder);
+        String joinPassword = eventGroup.getJoinPassword();
+        eventGroup.joinMember(member1, joinPassword);
+        eventGroup.joinMember(member2, joinPassword);
+
+        // when & then
+        assertThatThrownBy(() -> eventGroup.removeMember(member2, member1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("그룹장만이 회원을 추방할 수 있습니다");
+    }
+
+    @Test
+    @DisplayName("그룹장은 추방할 수 없다")
+    void removeMember_targetIsLeader_throwsException() {
+        // given
+        Member leader = createTestMember();
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+
+        // when & then
+        assertThatThrownBy(() -> eventGroup.removeMember(leader, leader))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("그룹장은 추방할 수 없습니다");
+    }
+
+    @Test
+    @DisplayName("그룹에 속하지 않은 멤버를 추방하려고 하면 예외가 발생한다")
+    void removeMember_notGroupMember_throwsException() {
+        // given
+        Member leader = createTestMember();
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+        Member notMember = Member.create("notmember@example.com", "password", "비회원", passwordEncoder);
+
+        // when & then
+        assertThatThrownBy(() -> eventGroup.removeMember(notMember, leader))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("그룹에 가입되지 않은 회원입니다");
+    }
+
     private Member createTestMember() {
         return Member.create("test@example.com", "password", "테스터", passwordEncoder);
     }
