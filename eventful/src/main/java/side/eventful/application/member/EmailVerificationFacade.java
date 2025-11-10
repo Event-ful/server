@@ -26,7 +26,7 @@ public class EmailVerificationFacade {
         memberService.validateEmailNotExists(MemberCommand.ValidateEmailNotExists.create(criteria.getEmail()));
         EmailVerification emailVerification = emailVerificationService.create(EmailVerificationCommand.Create.create(criteria.getEmail(), criteria.getExpiryDateTime()));
 
-        emailSender.sendVerificationEMail(emailVerification.getEmail(), emailVerification.getVerificationCode());
+        //emailSender.sendVerificationEMail(emailVerification.getEmail(), emailVerification.getVerificationCode());
 
         return EmailVerificationResult.Request.create(emailVerification.getVerificationCode());
     }
