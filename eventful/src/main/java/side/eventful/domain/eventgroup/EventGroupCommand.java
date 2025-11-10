@@ -65,4 +65,26 @@ public class EventGroupCommand {
             return new VerifyCode(joinCode);
         }
     }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class RemoveMember {
+        private Long eventGroupId;
+        private Long targetMemberId;
+        private Member requestMember;
+
+        public static RemoveMember create(Long eventGroupId, Long targetMemberId, Member requestMember) {
+            return new RemoveMember(eventGroupId, targetMemberId, requestMember);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class GetList {
+        private Member member;
+
+        public static GetList create(Member member) {
+            return new GetList(member);
+        }
+    }
 }

@@ -2,12 +2,15 @@ package side.eventful.domain.eventgroup;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import side.eventful.domain.member.Member;
+import side.eventful.domain.member.MemberRepository;
 
 @Service
 @RequiredArgsConstructor
 public class EventGroupService {
 
     private final EventGroupRepository eventGroupRepository;
+    private final MemberRepository memberRepository;
 
     public EventGroup create(EventGroupCommand.Create command) {
         String uniqueJoinCode = generateUniqueJoinCode();
@@ -86,5 +89,21 @@ public class EventGroupService {
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 참가 코드입니다"));
 
         return eventGroup;
+    }
+
+    public void removeMember(EventGroupCommand.RemoveMember command) {
+        EventGroup eventGroup = eventGroupRepository.findById(command.getEventGroupId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다"));
+
+        Member targetMember = memberRepository.findById(command.getTargetMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+
+        eventGroup.removeMember(targetMember, command.getRequestMember());
+
+        eventGroupRepository.save(eventGroup);
+    }
+
+    public java.util.List<EventGroup> getGroupList(EventGroupCommand.GetList command) {
+        return eventGroupRepository.findByMember(command.getMember());
     }
 }

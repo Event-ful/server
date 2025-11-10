@@ -60,4 +60,27 @@ public class EventGroupCriteria {
             return new VerifyCode(joinCode);
         }
     }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class RemoveMember {
+        private Long eventGroupId;
+        private Long targetMemberId;
+
+        public static RemoveMember create(Long eventGroupId, Long targetMemberId) {
+            return new RemoveMember(eventGroupId, targetMemberId);
+        }
+    }
+
+    @Getter
+    public static class GetList {
+        // 별도의 파라미터 없음 - 세션에서 회원 정보를 가져올 예정
+
+        private GetList() {
+        }
+
+        public static GetList create() {
+            return new GetList();
+        }
+    }
 }
