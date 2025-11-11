@@ -17,8 +17,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import side.eventful.global.response.ApiResponse;
 
-import java.util.Arrays;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -34,13 +32,11 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/api/members/signup/*",
-                    "/api/members/signup/verify-email/confirm",
-                    "/api/members/signup",
-                    "/api/auth/*",
+                    "/api/members/signup/**",
+                    "/api/auth/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/swagger-ui.html"
@@ -78,6 +74,7 @@ public class SecurityConfig {
         config.addAllowedMethod("*");
         config.addAllowedOriginPattern("*");
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
         source.registerCorsConfiguration("/**", config);
         return source;
     }
