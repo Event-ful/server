@@ -103,6 +103,18 @@ public class EventGroupService {
         eventGroupRepository.save(eventGroup);
     }
 
+    public void transferLeader(EventGroupCommand.TransferLeader command) {
+        EventGroup eventGroup = eventGroupRepository.findById(command.getEventGroupId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다"));
+
+        Member newLeader = memberRepository.findById(command.getNewLeaderMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다"));
+
+        eventGroup.transferLeadership(newLeader, command.getRequestMember());
+
+        eventGroupRepository.save(eventGroup);
+    }
+
     public java.util.List<EventGroup> getGroupList(EventGroupCommand.GetList command) {
         return eventGroupRepository.findByMember(command.getMember());
     }

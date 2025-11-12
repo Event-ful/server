@@ -87,4 +87,16 @@ public class EventGroupCommand {
             return new GetList(member);
         }
     }
+
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class TransferLeader {
+        private Long eventGroupId;
+        private Long newLeaderMemberId;
+        private Member requestMember;
+
+        public static TransferLeader create(Long eventGroupId, Long newLeaderMemberId, Member requestMember) {
+            return new TransferLeader(eventGroupId, newLeaderMemberId, requestMember);
+        }
+    }
 }
