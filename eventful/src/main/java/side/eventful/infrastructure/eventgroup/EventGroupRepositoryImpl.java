@@ -38,4 +38,9 @@ public class EventGroupRepositoryImpl implements EventGroupRepository {
     public List<EventGroup> findByMember(Member member) {
         return eventGroupJpaRepository.findByMember(member);
     }
+
+    @Override
+    public void delete(EventGroup eventGroup) {
+        eventGroupJpaRepository.delete(eventGroup);
+    }
 }

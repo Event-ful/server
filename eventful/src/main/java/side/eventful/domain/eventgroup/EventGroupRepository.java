@@ -11,4 +11,5 @@ public interface EventGroupRepository {
     Optional<EventGroup> findByJoinCode(String joinCode);
     boolean existsByJoinCode(String joinCode);
     List<EventGroup> findByMember(Member member);
+    void delete(EventGroup eventGroup);
 }

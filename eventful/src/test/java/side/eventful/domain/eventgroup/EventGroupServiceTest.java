@@ -348,6 +348,59 @@ class EventGroupServiceTest {
         inOrder.verify(eventGroupRepository).save(any(EventGroup.class));
     }
 
+    @Test
+    @DisplayName("그룹 삭제 - 정상 케이스")
+    void deleteGroup_withLeaderRequest_success() {
+        // given
+        Member leader = Member.create("leader@test.com", "password", "그룹장", passwordEncoder);
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+
+        given(eventGroupRepository.findById(1L))
+                .willReturn(Optional.of(eventGroup));
+
+        EventGroupCommand.Delete command = EventGroupCommand.Delete.create(1L, leader);
+
+        // when
+        eventGroupService.deleteGroup(command);
+
+        // then
+        verify(eventGroupRepository).findById(1L);
+        verify(eventGroupRepository).delete(eventGroup);
+    }
+
+    @Test
+    @DisplayName("그룹 삭제 - 존재하지 않는 그룹")
+    void deleteGroup_withNonExistentGroup_throwsException() {
+        // given
+        Member leader = Member.create("leader@test.com", "password", "그룹장", passwordEncoder);
+        EventGroupCommand.Delete command = EventGroupCommand.Delete.create(999L, leader);
+
+        given(eventGroupRepository.findById(999L))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> eventGroupService.deleteGroup(command));
+        verify(eventGroupRepository).findById(999L);
+    }
+
+    @Test
+    @DisplayName("그룹 삭제 - 요청자가 그룹장이 아닌 경우 예외")
+    void deleteGroup_nonLeaderRequest_throwsException() {
+        // given
+        Member leader = Member.create("leader@test.com", "password", "그룹장", passwordEncoder);
+        Member nonLeader = Member.create("member@test.com", "password", "멤버", passwordEncoder);
+        EventGroup eventGroup = EventGroup.create("소모임", "설명", "https://example.com/image.jpg", leader);
+
+        given(eventGroupRepository.findById(1L))
+                .willReturn(Optional.of(eventGroup));
+
+        EventGroupCommand.Delete command = EventGroupCommand.Delete.create(1L, nonLeader);
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> eventGroupService.deleteGroup(command));
+        verify(eventGroupRepository).findById(1L);
+    }
+
     private Member createTestMember() {
         return Member.create("test@example.com", "password", "테스터", passwordEncoder);
     }

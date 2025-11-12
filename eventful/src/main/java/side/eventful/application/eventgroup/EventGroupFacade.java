@@ -115,6 +115,31 @@ public class EventGroupFacade {
         eventGroupService.removeMember(command);
     }
 
+    // 그룹장 위임 처리
+    public void transferLeader(EventGroupCriteria.TransferLeader criteria) {
+        Member requestMember = authService.getAuthenticatedMember();
+
+        EventGroupCommand.TransferLeader command = EventGroupCommand.TransferLeader.create(
+            criteria.getEventGroupId(),
+            criteria.getNewLeaderMemberId(),
+            requestMember
+        );
+
+        eventGroupService.transferLeader(command);
+    }
+
+    // 그룹 삭제 처리 (페이사드)
+    public void deleteGroup(EventGroupCriteria.Delete criteria) {
+        Member requestMember = authService.getAuthenticatedMember();
+
+        EventGroupCommand.Delete command = EventGroupCommand.Delete.create(
+            criteria.getEventGroupId(),
+            requestMember
+        );
+
+        eventGroupService.deleteGroup(command);
+    }
+
     public EventGroupResult.GetList getGroupList(EventGroupCriteria.GetList criteria) {
         Member member = authService.getAuthenticatedMember();
 

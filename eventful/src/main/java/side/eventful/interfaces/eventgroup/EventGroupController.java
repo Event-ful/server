@@ -128,6 +128,29 @@ public class EventGroupController {
         return ResponseEntity.ok(ApiResponse.ok());
     }
 
+    @PutMapping("/{group-id}/members/{member-id}/transfer")
+    public ResponseEntity<ApiResponse> transferLeader(
+        @PathVariable("group-id") Long groupId,
+        @PathVariable("member-id") Long memberId) {
+
+        eventGroupFacade.transferLeader(
+            EventGroupCriteria.TransferLeader.create(groupId, memberId)
+        );
+
+        return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    @DeleteMapping("/{group-id}")
+    public ResponseEntity<ApiResponse> deleteEventGroup(
+        @PathVariable("group-id") Long groupId) {
+
+        eventGroupFacade.deleteGroup(
+            EventGroupCriteria.Delete.create(groupId)
+        );
+
+        return ResponseEntity.ok(ApiResponse.ok());
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<EventGroupResponse.GetList>> getEventGroups() {
         EventGroupResult.GetList result = eventGroupFacade.getGroupList(

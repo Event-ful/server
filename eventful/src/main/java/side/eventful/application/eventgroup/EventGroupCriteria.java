@@ -83,4 +83,27 @@ public class EventGroupCriteria {
             return new GetList();
         }
     }
+
+    // 그룹장 위임 Criteria
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class TransferLeader {
+        private Long eventGroupId;
+        private Long newLeaderMemberId;
+
+        public static TransferLeader create(Long eventGroupId, Long newLeaderMemberId) {
+            return new TransferLeader(eventGroupId, newLeaderMemberId);
+        }
+    }
+
+    // 그룹 삭제 Criteria
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Delete {
+        private Long eventGroupId;
+
+        public static Delete create(Long eventGroupId) {
+            return new Delete(eventGroupId);
+        }
+    }
 }

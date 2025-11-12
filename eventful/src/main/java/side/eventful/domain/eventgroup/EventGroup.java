@@ -98,6 +98,25 @@ public class EventGroup extends BaseEntity {
                 eventGroupMember.getMember().equals(targetMember));
     }
 
+    // 그룹장 위임 로직 추가
+    public void transferLeadership(Member newLeader, Member requestMember) {
+        validateLeaderPermission(requestMember);
+        validateMemberExists(newLeader);
+        if (this.leader.equals(newLeader)) {
+            throw new IllegalArgumentException("이미 그룹장인 회원입니다");
+        }
+
+        // leader 필드만 변경하면, 멤버 목록은 그대로 유지됩니다.
+        this.leader = newLeader;
+    }
+
+    // 그룹 삭제 권한 검증
+    public void validateDeletePermission(Member requestMember) {
+        if (!this.leader.equals(requestMember)) {
+            throw new IllegalArgumentException("그룹장만이 그룹을 삭제할 수 있습니다");
+        }
+    }
+
     public List<Member> getMembers() {
         return members.stream()
                 .map(EventGroupMember::getMember)
