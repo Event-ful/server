@@ -99,4 +99,16 @@ public class EventGroupCommand {
             return new TransferLeader(eventGroupId, newLeaderMemberId, requestMember);
         }
     }
+
+    // 그룹 삭제 커맨드
+    @Getter
+    @AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+    public static class Delete {
+        private Long eventGroupId;
+        private Member requestMember;
+
+        public static Delete create(Long eventGroupId, Member requestMember) {
+            return new Delete(eventGroupId, requestMember);
+        }
+    }
 }

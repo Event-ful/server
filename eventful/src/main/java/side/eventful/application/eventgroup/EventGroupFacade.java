@@ -128,6 +128,18 @@ public class EventGroupFacade {
         eventGroupService.transferLeader(command);
     }
 
+    // 그룹 삭제 처리 (페이사드)
+    public void deleteGroup(EventGroupCriteria.Delete criteria) {
+        Member requestMember = authService.getAuthenticatedMember();
+
+        EventGroupCommand.Delete command = EventGroupCommand.Delete.create(
+            criteria.getEventGroupId(),
+            requestMember
+        );
+
+        eventGroupService.deleteGroup(command);
+    }
+
     public EventGroupResult.GetList getGroupList(EventGroupCriteria.GetList criteria) {
         Member member = authService.getAuthenticatedMember();
 

@@ -110,6 +110,13 @@ public class EventGroup extends BaseEntity {
         this.leader = newLeader;
     }
 
+    // 그룹 삭제 권한 검증
+    public void validateDeletePermission(Member requestMember) {
+        if (!this.leader.equals(requestMember)) {
+            throw new IllegalArgumentException("그룹장만이 그룹을 삭제할 수 있습니다");
+        }
+    }
+
     public List<Member> getMembers() {
         return members.stream()
                 .map(EventGroupMember::getMember)

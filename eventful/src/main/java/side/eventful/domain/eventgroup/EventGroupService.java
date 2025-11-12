@@ -115,6 +115,18 @@ public class EventGroupService {
         eventGroupRepository.save(eventGroup);
     }
 
+    // 그룹 삭제 처리
+    public void deleteGroup(EventGroupCommand.Delete command) {
+        EventGroup eventGroup = eventGroupRepository.findById(command.getEventGroupId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다"));
+
+        // 도메인에서 권한 검증
+        eventGroup.validateDeletePermission(command.getRequestMember());
+
+        // JPA를 통해 삭제
+        eventGroupRepository.delete(eventGroup);
+    }
+
     public java.util.List<EventGroup> getGroupList(EventGroupCommand.GetList command) {
         return eventGroupRepository.findByMember(command.getMember());
     }
