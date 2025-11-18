@@ -43,3 +43,8 @@ springdoc:
     urls:
       - url: /v3/api-docs
         name: API docs
+
+oci:
+  namespace: axwrywpwpscl
+  bucket: eventful-bucket
+  region: ap-chuncheon-1

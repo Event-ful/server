@@ -9,12 +9,9 @@ import side.eventful.infrastructure.security.config.TestPasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles("test")
-@SpringBootTest
 class MemberTest {
 
-    @Autowired
-    private TestPasswordEncoder passwordEncoder;
+    private TestPasswordEncoder passwordEncoder = new TestPasswordEncoder();
 
     @Test
     void create() {
