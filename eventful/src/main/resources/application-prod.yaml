@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: eventful
+  config:
+    activate:
+      on-profile: prod
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  sendgrid:
+    from: ${SENDERGRID_FROM}
+    api-key: ${SENDERGRID_APIKEY}
+  datasource:
+    url: ${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 운영 환경에서는 validate 권장
+    show-sql: false  # 운영에서는 SQL 로그 비활성화
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  session:
+    jdbc:
+      initialize-schema: always
+      table-name: SPRING_SESSION
+    timeout: 24h
+
+springdoc:
+  api-docs:
+    enabled: false  # 운영 환경에서는 API 문서 비활성화
+  swagger-ui:
+    enabled: false
+
+# OCI 설정 - 환경 변수 기반 인증 (VM 환경)
+# config 파일이나 pem 키 파일 불필요
+oci:
+  namespace: axwrywpwpscl
+  bucket: eventful-bucket
+  region: ap-chuncheon-1
+  auth-type: SIMPLE  # 환경 변수로 인증 정보 주입
+  tenant-id: ${OCI_TENANT_ID}
+  user-id: ${OCI_USER_ID}
+  fingerprint: ${OCI_FINGERPRINT}
+  private-key: ${OCI_PRIVATE_KEY}
+  passphrase: ${OCI_PASSPHRASE:}  # passphrase가 없으면 빈 문자열
