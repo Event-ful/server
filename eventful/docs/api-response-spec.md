@@ -255,3 +255,94 @@
 3. **Path Variable**: URL 경로는 kebab-case를 사용합니다 (예: `group-id`).
 4. **Jackson 설정**: `application.yaml`에 `spring.jackson.property-naming-strategy: SNAKE_CASE` 설정이 전역으로 적용되어 있습니다.
 5. **전역 설정 의존**: DTO 클래스는 camelCase로 작성하고, Jackson이 자동으로 snake_case로 변환합니다.
+
+## 파일 업로드(File Upload) API
+
+### 1. 파일 업로드
+**POST** `/api/files/upload`
+
+**Content-Type**: `multipart/form-data`
+
+#### Request Parameters
+| 파라미터 | 타입 | 필수 | 설명 | 기본값 |
+|---------|------|------|------|--------|
+| file | File | ✅ | 업로드할 파일 (최대 10MB) | - |
+| directory | String | ❌ | 저장 디렉토리 (`GENERAL`, `GROUP_IMAGES`, `PROFILE_IMAGES`) | `GENERAL` |
+
+#### 허용되는 파일 형식
+- **이미지**: jpg, jpeg, png, gif, webp
+- **문서**: pdf
+
+#### Response (성공 - 200 OK)
+```json
+{
+  "status_code": 200,
+  "data": {
+    "file_name": "group-photo.jpg",
+    "stored_file_name": "a1b2c3d4-e5f6-7890-abcd-ef1234567890.jpg",
+    "file_url": "https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/namespace/b/bucket/o/group-images/a1b2c3d4-e5f6-7890-abcd-ef1234567890.jpg",
+    "content_type": "image/jpeg",
+    "file_size": 2048576,
+    "uploaded_at": "2025-11-18T10:30:00"
+  }
+}
+```
+
+#### Response 필드 설명
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| file_name | String | 원본 파일명 |
+| stored_file_name | String | 서버에 저장된 파일명 (UUID 기반) |
+| file_url | String | 파일에 접근할 수 있는 Public URL |
+| content_type | String | 파일의 MIME 타입 (예: `image/jpeg`) |
+| file_size | Long | 파일 크기 (bytes) |
+| uploaded_at | String | 업로드 완료 시각 (ISO 8601 형식) |
+
+#### Error Response (400 Bad Request - 파일 없음)
+```json
+{
+  "status_code": 400,
+  "error_message": "파일이 비어있습니다.",
+  "division_code": "INVALID_FILE"
+}
+```
+
+#### Error Response (400 Bad Request - 파일 크기 초과)
+```json
+{
+  "status_code": 400,
+  "error_message": "파일 크기는 10MB를 초과할 수 없습니다.",
+  "division_code": "FILE_SIZE_EXCEEDED"
+}
+```
+
+#### Error Response (500 Internal Server Error)
+```json
+{
+  "status_code": 500,
+  "error_message": "파일 업로드에 실패했습니다.",
+  "division_code": "FILE_UPLOAD_ERROR"
+}
+```
+
+### 디렉토리별 사용 목적
+| 디렉토리 | 용도 | 예시 |
+|---------|------|------|
+| `GENERAL` | 일반 파일 (기본값) | 영수증 이미지, 기타 첨부 파일 |
+| `GROUP_IMAGES` | 그룹 대표 이미지 | 그룹 생성/수정 시 업로드하는 그룹 썸네일 |
+| `PROFILE_IMAGES` | 프로필 이미지 | 회원 프로필 사진 |
+
+### 주의사항
+
+1. **파일 크기 제한**: 현재 최대 10MB까지 업로드 가능
+2. **세션 인증**: 로그인된 사용자만 파일 업로드 가능 (세션 쿠키 필요)
+3. **파일명 보안**: 서버에서 UUID 기반으로 자동 생성하여 중복 및 보안 문제 방지
+4. **URL 유효성**: 반환된 `file_url`은 Public URL이므로 바로 `<img>` 태그에 사용 가능
+5. **에러 처리**: 파일 크기, 형식 등을 클라이언트에서 미리 검증하면 UX 개선
+6. **진행률 표시**: 대용량 파일 업로드 시 `XMLHttpRequest.upload.onprogress` 또는 Axios의 `onUploadProgress` 활용 권장
+
+### 향후 추가 예정 기능 (TODO)
+- 이미지 리사이징 (썸네일 자동 생성)
+- 여러 파일 동시 업로드 (batch upload)
+- 파일 삭제 API
+- 업로드 진행률 WebSocket 지원
