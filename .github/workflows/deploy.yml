@@ -44,7 +44,7 @@ jobs:
 
             # .env 환경 변수 적용
             if [ -f .env ]; then
-              source .env
+              export $(cat .env | xargs)
             fi
 
             # 최신 eventful-*.jar 파일 감지
