@@ -77,5 +77,5 @@ jobs:
             fi
 
             # 새 JAR 실행 (백그라운드)
-            nohup java -jar eventful-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+            nohup java -jar eventful-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod > app.log 2>&1 &
           
