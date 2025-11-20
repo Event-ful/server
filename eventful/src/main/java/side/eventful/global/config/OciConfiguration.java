@@ -13,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * OCI Object Storage 설정
@@ -42,31 +40,39 @@ public class OciConfiguration {
         log.info("Region: {}", properties.getRegion());
 
         try {
-            AuthenticationDetailsProvider provider = createAuthenticationProvider();
+            if (properties.getAuthType() == OciStorageProperties.AuthType.CONFIG_FILE) {
+                AuthenticationDetailsProvider provider = createConfigFileProvider();
+                ObjectStorage client = ObjectStorageClient.builder()
+                        .region(properties.getRegion())
+                        .build(provider);
+                log.info("OCI ObjectStorage 클라이언트 초기화 완료");
+                return client;
+            }
 
-            // ObjectStorage 클라이언트 생성
-            ObjectStorage client = ObjectStorageClient.builder()
-                    .region(properties.getRegion())
-                    .build(provider);
+            if (properties.getAuthType() == OciStorageProperties.AuthType.INSTANCE_PRINCIPAL) {
+                InstancePrincipalsAuthenticationDetailsProvider provider = createInstancePrincipalProvider();
+                ObjectStorage client = ObjectStorageClient.builder()
+                        .region(properties.getRegion())
+                        .build(provider);
+                log.info("OCI ObjectStorage 클라이언트 초기화 완료");
+                return client;
+            }
 
-            log.info("OCI ObjectStorage 클라이언트 초기화 완료");
-            return client;
+            if (properties.getAuthType() == OciStorageProperties.AuthType.SIMPLE) {
+                AuthenticationDetailsProvider provider = createSimpleProvider();
+                ObjectStorage client = ObjectStorageClient.builder()
+                        .region(properties.getRegion())
+                        .build(provider);
+                log.info("OCI ObjectStorage 클라이언트 초기화 완료");
+                return client;
+            }
+
+            throw new IllegalStateException("지원하지 않는 인증 타입: " + properties.getAuthType());
 
         } catch (Exception e) {
             log.error("OCI ObjectStorage 클라이언트 초기화 실패", e);
             throw new IllegalStateException("OCI ObjectStorage 클라이언트를 초기화할 수 없습니다.", e);
         }
-    }
-
-    /**
-     * 설정된 인증 타입에 따라 적절한 AuthenticationDetailsProvider 생성
-     */
-    private AuthenticationDetailsProvider createAuthenticationProvider() throws IOException {
-        return switch (properties.getAuthType()) {
-            case CONFIG_FILE -> createConfigFileProvider();
-            case INSTANCE_PRINCIPAL -> createInstancePrincipalProvider();
-            case SIMPLE -> createSimpleProvider();
-        };
     }
 
     /**
@@ -99,9 +105,9 @@ public class OciConfiguration {
      * OCI VM 인스턴스에서 실행할 때 사용 (운영 환경)
      * 별도의 인증 파일이나 키가 필요 없음
      */
-    private AuthenticationDetailsProvider createInstancePrincipalProvider() {
+    private InstancePrincipalsAuthenticationDetailsProvider createInstancePrincipalProvider() {
         log.info("Instance Principal 인증 사용 (OCI VM 환경)");
-        return (AuthenticationDetailsProvider) InstancePrincipalsAuthenticationDetailsProvider.builder().build();
+        return InstancePrincipalsAuthenticationDetailsProvider.builder().build();
     }
 
     /**
