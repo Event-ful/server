@@ -48,9 +48,9 @@ public class OciStorageConfig {
      */
     @Bean
     @Profile("prod")
-    public AuthenticationDetailsProvider instancePrincipalsAuthenticationDetailsProvider() {
+    public InstancePrincipalsAuthenticationDetailsProvider instancePrincipalsAuthenticationDetailsProvider() {
         log.info("OCI Instance Principals 인증 초기화");
-        return (AuthenticationDetailsProvider) InstancePrincipalsAuthenticationDetailsProvider.builder().build();
+        return InstancePrincipalsAuthenticationDetailsProvider.builder().build();
     }
 
     /**
