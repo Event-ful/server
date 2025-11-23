@@ -1,7 +1,6 @@
 package side.eventful.global.config;
 
 import com.oracle.bmc.ConfigFileReader;
-import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.ConfigFileAuthenticationDetailsProvider;
 import com.oracle.bmc.auth.InstancePrincipalsAuthenticationDetailsProvider;
 import com.oracle.bmc.objectstorage.ObjectStorage;
@@ -50,7 +49,27 @@ public class OciStorageConfig {
     @Profile("prod")
     public InstancePrincipalsAuthenticationDetailsProvider instancePrincipalsAuthenticationDetailsProvider() {
         log.info("OCI Instance Principals 인증 초기화");
-        return InstancePrincipalsAuthenticationDetailsProvider.builder().build();
+
+        try {
+            InstancePrincipalsAuthenticationDetailsProvider provider =
+                    InstancePrincipalsAuthenticationDetailsProvider.builder().build();
+
+            log.info("✅ Instance Principals 인증 프로바이더 생성 성공");
+            log.info("Region: {}", provider.getRegion());
+
+            return provider;
+
+        } catch (Exception e) {
+            log.error("❌ Instance Principals 인증 초기화 실패", e);
+            log.error("");
+            log.error("📋 문제 해결 가이드:");
+            log.error("1. 이 애플리케이션이 OCI VM 인스턴스에서 실행되고 있는지 확인");
+            log.error("2. VM이 Dynamic Group에 포함되어 있는지 확인");
+            log.error("3. OCI 메타데이터 서비스에 접근 가능한지 확인");
+            log.error("   (방화벽이나 보안 그룹이 169.254.169.254 접근을 차단하지 않는지)");
+            log.error("");
+            throw new IllegalStateException("Instance Principals 인증 초기화 실패. OCI VM 환경 설정을 확인해주세요.", e);
+        }
     }
 
     /**
