@@ -45,6 +45,7 @@ dependencies {
     implementation("org.springframework.session:spring-session-jdbc")
 
     // Oracle Object Storage
+    implementation("com.oracle.oci.sdk:oci-java-sdk-bom:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage:3.76.1")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common:3.76.1")
     implementation("com.oracle.cloud.spring:spring-cloud-oci-starter:1.4.5")
