@@ -30,7 +30,7 @@ public class OciStorageConfig {
      */
     @Bean
     @Profile("!prod")
-    public AuthenticationDetailsProvider localAuthenticationDetailsProvider() throws IOException {
+    public ConfigFileAuthenticationDetailsProvider localAuthenticationDetailsProvider() throws IOException {
         log.info("OCI 로컬 인증 초기화 - config 파일: {}, 프로파일: {}",
                 properties.getConfigFile(), properties.getProfile());
 
@@ -54,11 +54,29 @@ public class OciStorageConfig {
     }
 
     /**
-     * Object Storage 클라이언트 생성
+     * Object Storage 클라이언트 생성 (로컬 환경)
      */
     @Bean
-    public ObjectStorage objectStorageClient(AuthenticationDetailsProvider authProvider) {
-        log.info("OCI Object Storage 클라이언트 생성 - region: {}, namespace: {}, bucket: {}",
+    @Profile("!prod")
+    public ObjectStorage objectStorageClientLocal(ConfigFileAuthenticationDetailsProvider authProvider) {
+        log.info("OCI Object Storage 클라이언트 생성 (로컬) - region: {}, namespace: {}, bucket: {}",
+                properties.getRegion(), properties.getNamespace(), properties.getBucket());
+
+        ObjectStorage client = ObjectStorageClient.builder()
+                .build(authProvider);
+
+        client.setRegion(properties.getRegion());
+
+        return client;
+    }
+
+    /**
+     * Object Storage 클라이언트 생성 (프로덕션 환경)
+     */
+    @Bean
+    @Profile("prod")
+    public ObjectStorage objectStorageClientProd(InstancePrincipalsAuthenticationDetailsProvider authProvider) {
+        log.info("OCI Object Storage 클라이언트 생성 (프로덕션) - region: {}, namespace: {}, bucket: {}",
                 properties.getRegion(), properties.getNamespace(), properties.getBucket());
 
         ObjectStorage client = ObjectStorageClient.builder()

@@ -45,7 +45,7 @@ dependencies {
     implementation("org.springframework.session:spring-session-jdbc")
 
     // Oracle Object Storage - BOM으로 버전 통합 관리
-    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.76.1"))
+    implementation(platform("com.oracle.oci.sdk:oci-java-sdk-bom:3.52.0"))
     implementation("com.oracle.oci.sdk:oci-java-sdk-objectstorage")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common")
     implementation("com.oracle.oci.sdk:oci-java-sdk-common-httpclient-jersey3")
