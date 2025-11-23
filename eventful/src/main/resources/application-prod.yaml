@@ -32,9 +32,11 @@ spring:
 
 springdoc:
   api-docs:
-    enabled: false  # 운영 환경에서는 API 문서 비활성화
+    enabled: true  # 개발/테스트 단계에서는 true로 설정
+    path: /v3/api-docs
   swagger-ui:
-    enabled: false
+    enabled: true  # 개발/테스트 단계에서는 true로 설정
+    path: /swagger-ui.html
 
 # OCI 설정 - Instance Principal 인증 (VM 환경)
 # VM에 config 파일, pem 키, 환경 변수 모두 불필요!
