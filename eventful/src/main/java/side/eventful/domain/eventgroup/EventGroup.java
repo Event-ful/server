@@ -144,6 +144,15 @@ public class EventGroup extends BaseEntity {
         return this.leader.equals(member);
     }
 
+    /**
+     * 해당 회원이 그룹원인지 확인
+     * 이벤트 참여 등 그룹원 권한이 필요한 작업에서 사용
+     */
+    public boolean isMember(Member member) {
+        return this.members.stream()
+            .anyMatch(eventGroupMember -> eventGroupMember.getMember().equals(member));
+    }
+
     public int getMemberCount() {
         return this.members.size();
     }

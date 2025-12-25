@@ -130,4 +130,24 @@ public class EventGroupService {
     public java.util.List<EventGroup> getGroupList(EventGroupCommand.GetList command) {
         return eventGroupRepository.findByMember(command.getMember());
     }
+
+    /**
+     * 이벤트 생성을 위한 그룹 조회 및 권한 검증
+     * 그룹이 존재하고, 요청자가 그룹원인지 확인
+     *
+     * @param eventGroupId 그룹 ID
+     * @param member 요청자
+     * @return 검증된 EventGroup
+     * @throws IllegalArgumentException 그룹이 없거나 그룹원이 아닌 경우
+     */
+    public EventGroup getGroupForEventCreation(Long eventGroupId, Member member) {
+        EventGroup eventGroup = eventGroupRepository.findById(eventGroupId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다."));
+
+        if (!eventGroup.isMember(member)) {
+            throw new IllegalArgumentException("그룹원만 이벤트를 생성할 수 있습니다.");
+        }
+
+        return eventGroup;
+    }
 }
