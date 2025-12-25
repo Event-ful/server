@@ -16,8 +16,8 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate  # 운영 환경에서는 validate 권장
-    show-sql: false  # 운영에서는 SQL 로그 비활성화
+      ddl-auto: update  
+    show-sql: true 
     properties:
       hibernate:
         format_sql: false
