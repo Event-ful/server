@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import side.eventful.domain.common.BaseEntity;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -32,5 +34,17 @@ public class Member extends BaseEntity {
 
     public static Member create(String email, String password, String nickname, PasswordEncoder passwordEncoder) {
         return new Member(email, passwordEncoder.encode(password), nickname);
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof Member member)) return false;
+
+        return Objects.equals(getId(), member.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
     }
 }

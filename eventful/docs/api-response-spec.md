@@ -20,9 +20,23 @@
 {
   "status_code": 400,
   "error_message": "에러 메시지",
-  "division_code": "ERROR_CODE"
+  "division_code": null
 }
 ```
+
+**참고:**
+- `division_code`는 **대부분의 경우 `null`**입니다.
+- `BusinessException`을 명시적으로 사용하는 특정 비즈니스 예외(예: 이메일 인증 관련)에서만 `division_code`가 포함됩니다.
+- 일반적인 유효성 검증 실패나 도메인 로직 예외는 `IllegalArgumentException`을 사용하며, 이 경우 `division_code`는 `null`입니다.
+
+**현재 사용 중인 division_code 목록:**
+| division_code | 설명 | 사용 위치 |
+|---------------|------|----------|
+| `EMAIL_CONFIRM_INVALID_CODE` | 잘못된 이메일 인증 코드 | 이메일 인증 확인 |
+| `EMAIL_CONFIRM_ALREADY_VERIFIED` | 이미 인증된 이메일 | 이메일 인증 확인 |
+| `EMAIL_CONFIRM_EXPIRED` | 인증 코드 만료 | 이메일 인증 확인 |
+| `CHECK_NICKNAME_EXISTS` | 중복된 닉네임 | 닉네임 중복 확인 |
+| `CHECK_NICKNAME_REQUIRED` | 닉네임 필수 | 닉네임 중복 확인 |
 
 ## URL 경로 규칙
 - Path Variable: **케밥 케이스(kebab-case)** 사용
@@ -248,6 +262,66 @@
 }
 ```
 
+## 이벤트(Event) API 응답 예시
+
+### 1. 이벤트 생성
+**POST** `/api/event`
+
+**Request Body**
+```json
+{
+  "event_group_id": 1,
+  "event_name": "서울 맛집 탐방",
+  "event_description": "강남역 근처 맛집 탐방",
+  "event_max_member": 10,
+  "event_date": "2025-03-15",
+  "place_id": "ChIJN1t_tDeuEmsRUsoyG83frY4"
+}
+```
+
+**Response (성공 - 200 OK)**
+```json
+{
+  "status_code": 200,
+  "data": {
+    "event_id": 1,
+    "event_group_id": 1,
+    "event_name": "서울 맛집 탐방",
+    "event_description": "강남역 근처 맛집 탐방",
+    "event_max_member": 10,
+    "event_date": "2025-03-15",
+    "place_id": "ChIJN1t_tDeuEmsRUsoyG83frY4"
+  }
+}
+```
+
+**Error Response (400 Bad Request - 유효성 검증 실패)**
+```json
+{
+  "status_code": 400,
+  "error_message": "eventName: 이벤트 이름은 필수입니다",
+  "division_code": null
+}
+```
+
+**Error Response (400 Bad Request - 그룹원이 아님)**
+```json
+{
+  "status_code": 400,
+  "error_message": "그룹원만 이벤트를 생성할 수 있습니다.",
+  "division_code": null
+}
+```
+
+**Error Response (400 Bad Request - 최대 참여 인원 초과)**
+```json
+{
+  "status_code": 400,
+  "error_message": "최대 참여 인원을 초과했습니다.",
+  "division_code": null
+}
+```
+
 ## 주의사항
 
 1. **일관성**: 모든 JSON 필드는 snake_case를 사용합니다.
@@ -303,7 +377,7 @@
 {
   "status_code": 400,
   "error_message": "파일이 비어있습니다.",
-  "division_code": "INVALID_FILE"
+  "division_code": null
 }
 ```
 
@@ -312,7 +386,7 @@
 {
   "status_code": 400,
   "error_message": "파일 크기는 10MB를 초과할 수 없습니다.",
-  "division_code": "FILE_SIZE_EXCEEDED"
+  "division_code": null
 }
 ```
 
@@ -320,8 +394,8 @@
 ```json
 {
   "status_code": 500,
-  "error_message": "파일 업로드에 실패했습니다.",
-  "division_code": "FILE_UPLOAD_ERROR"
+  "error_message": "서버 내부 오류가 발생했습니다.",
+  "division_code": null
 }
 ```
 
