@@ -90,6 +90,7 @@ public class EventGroupController {
             ApiResponse.ok(EventGroupResponse.Get.create(
                 result.getGroupName(),
                 result.getGroupDescription(),
+                result.getGroupImageUrl(),
                 result.isLeader(),
                 result.getMemberCount(),
                 result.getJoinCode(),

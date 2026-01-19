@@ -81,6 +81,7 @@ public class EventGroupFacade {
         return EventGroupResult.Get.create(
             eventGroup.getName(),
             eventGroup.getDescription(),
+            eventGroup.getImageUrl(),
             eventGroup.isLeader(member),
             eventGroup.getMemberCount(),
             eventGroup.getJoinCode(), // 실제 joinCode 필드 사용

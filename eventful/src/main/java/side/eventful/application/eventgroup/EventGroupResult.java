@@ -29,16 +29,18 @@ public class EventGroupResult {
     public static class Get {
         private final String groupName;
         private final String groupDescription;
+        private final String groupImageUrl;
         private final boolean isLeader;
         private final int memberCount;
         private final String joinCode;
         private final String groupPassword;
         private final java.util.List<GroupMember> groupMembers;
 
-        private Get(String groupName, String groupDescription, boolean isLeader, int memberCount,
+        private Get(String groupName, String groupDescription, String groupImageUrl, boolean isLeader, int memberCount,
                    String joinCode, String groupPassword, java.util.List<GroupMember> groupMembers) {
             this.groupName = groupName;
             this.groupDescription = groupDescription;
+            this.groupImageUrl = groupImageUrl;
             this.isLeader = isLeader;
             this.memberCount = memberCount;
             this.joinCode = joinCode;
@@ -46,9 +48,9 @@ public class EventGroupResult {
             this.groupMembers = groupMembers;
         }
 
-        public static Get create(String groupName, String groupDescription, boolean isLeader, int memberCount,
+        public static Get create(String groupName, String groupDescription, String groupImageUrl, boolean isLeader, int memberCount,
                                String joinCode, String groupPassword, java.util.List<GroupMember> groupMembers) {
-            return new Get(groupName, groupDescription, isLeader, memberCount, joinCode, groupPassword, groupMembers);
+            return new Get(groupName, groupDescription, groupImageUrl, isLeader, memberCount, joinCode, groupPassword, groupMembers);
         }
     }
 
